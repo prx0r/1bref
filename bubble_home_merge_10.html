@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Recognition - Ten Statements</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+    />
+
+    <style>
+      :root {
+        --bg: #07070e;
+        --panel: rgba(10, 10, 20, 0.97);
+        --ink: rgba(255, 255, 255, 0.78);
+        --muted: rgba(255, 255, 255, 0.42);
+        --faint: rgba(255, 255, 255, 0.22);
+        --line: rgba(255, 255, 255, 0.10);
+        --line-2: rgba(255, 255, 255, 0.08);
+
+        --radius: 20px;
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
+        --shadow-2: 0 22px 60px rgba(0, 0, 0, 0.42);
+
+        --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", sans-serif;
+        --serif: "Fraunces", ui-serif, Georgia, "Times New Roman", Times, serif;
+        --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono",
+          "Cascadia Mono", "Segoe UI Mono", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+      }
+
+      body {
+        font-family: var(--sans);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      :focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.22);
+        outline-offset: 2px;
+        border-radius: 12px;
+      }
+
+      #app {
+        position: relative;
+        min-height: 100svh;
+        min-height: 100dvh;
+        overflow: hidden;
+      }
+
+      /* Bottom-right portal (links to breathing practice) */
+      #lattyPortal {
+        position: fixed;
+        right: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        width: clamp(28px, 6vw, 56px);
+        height: auto;
+        opacity: 0.22;
+        pointer-events: auto;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        filter: invert(1) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55));
+        z-index: 70;
+        text-decoration: none;
+      }
+
+      #lattyPortal img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      #lattyPortal:active {
+        transform: scale(0.98);
+      }
+
+      .bg {
+        pointer-events: none;
+        position: fixed;
+        inset: -20vmax;
+        background:
+          radial-gradient(1200px 800px at 20% 18%, rgba(180, 140, 255, 0.10), transparent 62%),
+          radial-gradient(1100px 820px at 78% 20%, rgba(70, 200, 255, 0.10), transparent 64%),
+          radial-gradient(1000px 900px at 50% 86%, rgba(255, 210, 120, 0.06), transparent 66%),
+          radial-gradient(900px 700px at 50% 40%, rgba(255, 255, 255, 0.04), transparent 62%);
+        filter: saturate(0.92);
+        opacity: 0.9;
+      }
+
+      main {
+        position: relative;
+        z-index: 10;
+        width: min(92vw, 980px);
+        margin: 0 auto;
+        padding:
+          calc(22px + env(safe-area-inset-top)) 0
+          calc(110px + env(safe-area-inset-bottom));
+      }
+
+      #stage {
+        width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: var(--shadow);
+        padding: 18px 16px;
+      }
+
+      #k {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.20em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.30);
+      }
+
+      #statement {
+        margin-top: 12px;
+        font-family: var(--serif);
+        font-size: clamp(30px, 4.8vw, 52px);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+        font-weight: 650;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      #pointer {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line-2);
+        font-size: 13px;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.46);
+        max-width: 92ch;
+      }
+
+      #pointer p + p {
+        margin-top: 10px;
+      }
+
+      #relatedDetails {
+        margin-top: 14px;
+        border-top: 1px solid var(--line-2);
+        padding-top: 12px;
+      }
+
+      #relatedDetails > summary {
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 11px;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+      }
+
+      #relatedDetails > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .relDot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.50);
+        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+      }
+
+      .relCount {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        color: rgba(255, 255, 255, 0.32);
+      }
+
+      .relChevron {
+        width: 14px;
+        height: 14px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.48);
+        font-size: 11px;
+        line-height: 14px;
+        transition: transform 0.16s ease;
+      }
+
+      #relatedDetails[open] .relChevron {
+        transform: rotate(180deg);
+      }
+
+      #relatedList {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      details.relItem {
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.02);
+        overflow: hidden;
+      }
+
+      details.relItem > summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 12px;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      details.relItem > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .relTitle {
+        font-size: 14px;
+        line-height: 1.25;
+      }
+
+      .relArrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.10em;
+        color: rgba(255, 255, 255, 0.32);
+        flex: 0 0 auto;
+        transition: transform 0.16s ease;
+      }
+
+      details.relItem[open] .relArrow {
+        transform: rotate(180deg);
+      }
+
+      .relBody {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px 12px 14px;
+        color: rgba(255, 255, 255, 0.46);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .relLink {
+        display: inline-block;
+        margin-top: 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.62);
+        text-decoration: none;
+      }
+
+      .relLink:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.18em;
+      }
+
+      .swap {
+        animation: swapFade 140ms ease both;
+      }
+
+      @keyframes swapFade {
+        from {
+          opacity: 0;
+          transform: translateY(2px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Bottom dock (same system as meditation, stripped down) */
+      #dock {
+        position: fixed;
+        left: 50%;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        z-index: 60;
+        width: min(92vw, 560px);
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: var(--shadow-2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        touch-action: manipulation;
+      }
+
+      .dock-btn {
+        height: 36px;
+        min-width: 44px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.72);
+        cursor: pointer;
+        padding: 0 10px;
+        font-size: 14px;
+        line-height: 36px;
+      }
+
+      .dock-btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+
+      .dock-mid {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        width: 100%;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.52);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .dock-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+      }
+
+      #dockLabel {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .swap {
+          animation: none;
+        }
+        .relChevron,
+        .relArrow {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="bg"></div>
+
+      <main>
+        <section id="stage" aria-live="polite">
+          <div id="k">S01/10</div>
+          <div id="statement"></div>
+          <div id="pointer"></div>
+
+          <details id="relatedDetails">
+            <summary>
+              <span class="relDot" aria-hidden="true"></span>
+              <span>Related ideas</span>
+              <span class="relCount" id="relatedCount">(0)</span>
+              <span class="relChevron" aria-hidden="true">▼</span>
+            </summary>
+            <div id="relatedList"></div>
+          </details>
+        </section>
+      </main>
+
+      <nav id="dock" aria-label="Statement navigation">
+        <button class="dock-btn" id="prev" type="button" aria-label="Previous">
+          &lt;
+        </button>
+        <div class="dock-mid" aria-label="Current statement">
+          <span class="dock-dot" aria-hidden="true"></span>
+          <span id="dockLabel">S01/10</span>
+        </div>
+        <button class="dock-btn" id="next" type="button" aria-label="Next">
+          &gt;
+        </button>
+      </nav>
+
+      <a id="lattyPortal" href="./index.html" aria-label="Open breathing practice">
+        <img src="latty.png" alt="" decoding="async" loading="lazy" />
+      </a>
+    </div>
+
+    <script>
+      (function () {
+        var STATEMENTS = [
+          {
+            title: "Whatever you can notice appears.",
+            pointer: [
+              "Stop reading for ten seconds and do this.",
+              "Notice one sound. Not the idea of sound. The raw hearing.",
+              "Notice one sensation in the body. Not a label like 'hand' or 'face'. The actual felt texture.",
+              "Notice one thought. You do not need to think one. Wait and catch one as it arrives.",
+              "Each of these has the same signature: it shows up. It appears. It is present, then it changes.",
+              "Now notice the hidden move: the mind quietly says, 'Those are appearances, but I am the one to whom they appear.'",
+              "Do not argue with that sentence. Look for what it points to: the sense of being here, the sense of being the knower.",
+              "Can that sense be noticed? Yes. If it can be noticed, it is also something that appears.",
+              "No exceptions. If it shows up at all, it belongs to what shows up."
+            ],
+            related: [
+              {
+                title: "Friston — Active Inference & Free Energy Principle",
+                desc:
+                  "The most mathematically developed account of how experience is generated. The brain isn't passively receiving the world — it's a prediction machine that constructs its best guess about the causes of sensory signals and minimises the difference between prediction and input. The observer is not behind this process watching it. It is the process — a high-level model the system runs of itself. Friston's key insight: to individuate a \"self\" at all, you need a Markov blanket — a statistical boundary separating internal from external states. The self is not found; it's inferred. Inferred things are appearances.",
+                url: "https://en.wikipedia.org/wiki/Free_energy_principle"
+              },
+              {
+                title: "Seth — Controlled Hallucination",
+                desc:
+                  "Anil Seth's framing (Being You, 2021): consciousness is a \"controlled hallucination\" — internally generated, not a transparent window onto reality. Crucially, this includes the self. The experience of being a unified observer is itself the brain's confident prediction about what is doing the perceiving. It's not more real than any other percept — it's just a more stubborn one.",
+                url: "https://www.anilseth.com/being-you/"
+              },
+              {
+                title: "Abhidhamma",
+                desc:
+                  "The Buddha's psychological canon analyses experience as a rapid sequence of discrete mind-moments, each arising, performing its function, and ceasing. The sense of continuity across these moments is a retrospective construction. There is no gap between frames where a \"real observer\" persists.",
+                url: "https://en.wikipedia.org/wiki/Abhidharma"
+              },
+              {
+                title: "William James — Radical Empiricism",
+                desc:
+                  "James insisted that there is no separate \"self\" behind the stream of thought — the thinker is the stream. \"Thoughts think themselves.\" This runs directly against the intuition that appearances need a separate witness to own them.",
+                url: "https://en.wikipedia.org/wiki/Radical_empiricism"
+              }
+            ]
+          },
+          {
+            title: "The person you call 'me' is an appearance.",
+            pointer: [
+              "Do not think about 'the self'. Find what you actually mean by 'me'.",
+              "Say your name silently once. Notice what answers to it. A felt image. A posture. A memory tone.",
+              "Now notice the body. Not as anatomy. As a field of sensations and a body-image.",
+              "Now notice the story-line: what you believe is going on in your life. Past, future, hopes, fears.",
+              "All of that is findable. And everything findable is found by noticing it. It appears.",
+              "The confusion is simple: because this pattern is constant, it is mistaken for the ground.",
+              "A river is real. But it is a pattern in water, banks, and gravity. It did not author its own conditions.",
+              "In the same way, the personal 'me' is real as a pattern. It is not an independent substance behind experience.",
+              "Gurdjieff's test: watch for one day how many different 'I's take the microphone. Each one arrives as the real one.",
+              "Now notice the next escape the mind will try: 'Fine, the person is content. But I am the witness of the content.' We'll test that next."
+            ],
+            related: [
+              {
+                title: "Levin — Bioelectric Pattern Identity",
+                desc:
+                  "Michael Levin's lab at Tufts has shown that biological organisms preserve identity across complete substrate replacement. Planarian worms, decapitated and regrown, regenerate their original body pattern because it is stored in bioelectric fields — not in any particular tissue. More radically: brief manipulation of these fields (48 hours) can permanently reprogram what pattern the animal regenerates toward — and once removed, the animal continues to regenerate the new form. What persists is information, not matter. This is the closest thing in contemporary biology to a rigorous account of \"self as pattern rather than substance.\" The self is what the body is currently running, not what it is made of.",
+                url: "https://drmichaellevin.org/research/"
+              },
+              {
+                title: "Abhidhamma — Conventional vs. Ultimate Truth",
+                desc:
+                  "Sammuti-sacca (conventional truth) vs paramattha-sacca (ultimate truth). The self exists conventionally — a useful and causally real designation over a stream of events. It does not exist ultimately — there is no indivisible possessor behind the stream. You can be a committed moral agent and still not be a metaphysical substance.",
+                url: "https://en.wikipedia.org/wiki/Abhidharma"
+              },
+              {
+                title: "Gurdjieff — Multiple I's",
+                desc:
+                  "Gurdjieff's blunt observation: what you call \"I\" is not one thing. It is a rotating committee of competing sub-personalities, each claiming to be the whole. The unified self-feeling is a cover story. This isn't metaphysics — it's available to direct inspection if you watch the thing closely enough.",
+                url: "https://en.wikipedia.org/wiki/George_Gurdjieff"
+              },
+              {
+                title: "Nisargadatta Maharaj",
+                desc:
+                  "\"I am\" is prior to all qualifiers. \"I am this\" is the mistake. Nisargadatta's entire teaching is the repeated demonstration that any content you identify with — body, memory, role, story — is something appearing to awareness, not awareness itself.",
+                url: "https://en.wikipedia.org/wiki/Nisargadatta_Maharaj"
+              }
+            ]
+          },
+          {
+            title: "The 'witness' feeling is also an appearance.",
+            pointer: [
+              "Now the mind will try its favorite escape: 'Fine, the person is an appearance. But I am the witness behind it.'",
+              "Do not accept that. Test it.",
+              "Right now there is an object: this text. And there is a felt subject-position: 'I am here, looking.'",
+              "Turn attention away from the words and toward that subject-position.",
+              "Where is it felt? Often as a subtle pressure behind the eyes, a location in the head, a forward-leaning stance.",
+              "Do not describe it. Feel it.",
+              "Now ask: is this witness-feeling itself something you can notice? If yes, it is in the field.",
+              "Krishnamurti's point is practical: the observer is the observed. The witness is another observed thing.",
+              "Do not romanticise this witness-feeling as 'pure awareness'. It is usually a bodily-centre posture plus an ownership-tone.",
+              "If you can watch the witness, it is not the final watcher. It is a posture appearing in experience."
+            ],
+            related: [
+              {
+                title: "Metzinger — Self-Model Theory",
+                desc:
+                  "Thomas Metzinger (Being No One, 2003): there is no self — only a self-model so transparent the system cannot see it as a model. It mistakes the representation for the thing being represented. Recognition is the system becoming aware it is looking at a model, not through one. Crucially, this happens in real-time: you are currently looking through a self-model that thinks it is a self.",
+                url: "https://en.wikipedia.org/wiki/Thomas_Metzinger"
+              },
+              {
+                title: "Seth — The Predictive Self",
+                desc:
+                  "The observer-feeling is a high-confidence prior — the brain's inference about what is doing the inferring. It's not discovered through introspection; it's generated by the same machinery as every other percept. Which means it has the same epistemological status. Which means it can be wrong.",
+                url: "https://www.anilseth.com/being-you/"
+              },
+              {
+                title: "J. Krishnamurti",
+                desc:
+                  "Krishnamurti's point, made with relentless precision: the observer is the observed. The sense of being a separate watcher looking at thoughts is itself a thought. There is no clean division between the one who sees and what is seen — both arise in the same movement.",
+                url: "https://en.wikipedia.org/wiki/Jiddu_Krishnamurti"
+              },
+              {
+                title: "Spanda — Kashmir Shaivism",
+                desc:
+                  "The Spanda Kārikās (Vasugupta, 9th century) describe consciousness not as a static observer but as spanda — a dynamic pulsation. The felt position of the watcher is one of its contracted modes, not its ground.",
+                url: "https://en.wikipedia.org/wiki/Spanda"
+              }
+            ]
+          },
+          {
+            title:
+              "Anything identifiable is known by contrast and change.",
+            pointer: [
+              "Test this, not as philosophy, but as a fact.",
+              "Try to hear a sound with no contrast to silence. You cannot.",
+              "Try to notice a sensation with no edge, no variation, no change. You cannot.",
+              "Try to identify a thought with no beginning and no end. You cannot.",
+              "This is not a metaphysical claim yet. It is just what you can check directly: nothing you can notice stands alone.",
+              "Now notice the noticer. Does it stand alone?",
+              "How do you know 'I am here'? Through location in the body, contrast with what is seen, memory linking moments, and ownership-tone.",
+              "Its claim to independence from those relations has no better foundation than its claim to independence from the body, the memory, and the contrast that make it detectable at all."
+            ],
+            related: [
+              {
+                title: "Nāgārjuna — Madhyamaka",
+                desc:
+                  "Nothing has independent own-being (svabhāva). All phenomena are dependently arisen (pratītyasamutpāda). This is not nihilism — the claim is that what things are is constituted by their relations, not prior to them. Things don't first exist and then enter into relations. Relations are what things are.",
+                url: "https://plato.stanford.edu/entries/nagarjuna/"
+              },
+              {
+                title: "Rovelli — Relational Quantum Mechanics",
+                desc:
+                  "Properties do not exist in themselves. They exist only relative to interactions. There is no view from nowhere. A physical system has no absolute state — only states relative to other systems. The parallels with Madhyamaka are not accidental; Rovelli has noted them explicitly.",
+                url: "https://plato.stanford.edu/entries/qm-relational/"
+              },
+              {
+                title: "Bhartrhari — Sphoṭa",
+                desc:
+                  "Bhartrhari's philosophy of language (Vākyapadīya, 5th century CE): meaning is not assembled from parts. It flashes as a whole (pratibhā) — a direct comprehension prior to linguistic decomposition. A sentence's meaning is not the sum of its words. This applies equally to selfhood: the self as experienced is not assembled from components noticed in sequence. It flashes as a whole and is then parsed. Which means the whole is always already relational.",
+                url: "https://iep.utm.edu/bhartrihari/"
+              },
+              {
+                title: "Bohm — Implicate Order",
+                desc:
+                  "David Bohm's Wholeness and the Implicate Order (1980): the apparently separate objects of the world are unfoldings from a deeper implicate order of undivided wholeness. The explicate order — separate things — is real but derivative. The error is taking the unfolded, fragmented view as fundamental.",
+                url: "https://en.wikipedia.org/wiki/Implicate_and_explicate_order"
+              },
+              {
+                title: "Whitehead — Process Philosophy",
+                desc:
+                  "What is fundamental is not substances but processes — events, occasions, and their relations. Things are stabilised patterns of process, not blocks of stuff that subsequently enter into relations.",
+                url: "https://plato.stanford.edu/entries/whitehead/"
+              }
+            ]
+          },
+          {
+            title: "The observer-feeling is built from parts.",
+            pointer: [
+              "Do this as an anatomy lesson of the 'witness'.",
+              "Find the sense of being a centre. Do not describe it. Feel it.",
+              "Now list what it is made of, in experience: (1) location in the head/face, (2) an object to face, (3) memory of being the same one, (4) an ownership-flavor: 'mine', (5) effort: a subtle holding.",
+              "You can verify each one.",
+              "Remove the object for a moment (close the eyes). The centre shifts.",
+              "Relax the effort in the face and eyes. The centre softens.",
+              "Notice the ownership-tone on a thought ('my thought') and on a sound ('just sound'). Different texture.",
+              "That ownership-tone is what phenomenologists call the minimal self: the pre-reflective 'mine' before any story.",
+              "The 'observer' is not a pure thing. It is a construction made of these parts. That is why it has no special claim to independence.",
+              "This is the knot: self-exemption. Everything is conditioned except the one who claims to be the conditioner. Watch that claim arise and fall."
+            ],
+            related: [
+              {
+                title: "Friston — Self as Generative Model",
+                desc:
+                  "In active inference, the self-model is treated as ground truth in the brain's generative model. The entire prediction machinery allocates salience and effort around protecting it. This is an efficient heuristic. The error is elevating a heuristic to a metaphysical fact.",
+                url: "https://en.wikipedia.org/wiki/Active_inference"
+              },
+              {
+                title: "Chowdhury et al. 2025 — Jhāna Neuroscience",
+                desc:
+                  "Harvard MGH's Meditation Research Program (Chowdhury, Bianciardi, Sacchet et al., NeuroImage, 2025): in deep jhāna absorption states, using ultra-high-field 7T MRI and EEG in a practitioner with 23,000+ hours of meditation, they found decreased default mode network modularity, increased global functional connectivity, widespread reductions in broadband EEG power, and increased Lempel-Ziv complexity (neural entropy). These are the neural signatures of a system that has relaxed its organisation around a central self-model. Not a report. Data.",
+                url: "https://pubmed.ncbi.nlm.nih.gov/39681243/"
+              },
+              {
+                title: "Raja Yoga — Patañjali",
+                desc:
+                  "The Yoga Sūtras describe consciousness ordinarily as citta-vṛtti — fluctuations of the mind-stuff. These fluctuations constitute what we call \"the observer.\" Liberation (kaivalya) is what remains when the fluctuations cease — not the absence of consciousness but its clarification.",
+                url: "https://en.wikipedia.org/wiki/Yoga_Sutras_of_Patanjali"
+              },
+              {
+                title: "Zahavi — The Minimal Self",
+                desc:
+                  "Dan Zahavi (Subjectivity and Selfhood, 2005) argues that there is a 'minimal self' — a pre-reflective sense of ownership that is structurally prior to any narrative or reflected self. This is not the ordinary self under critique in statement 05. It is the formal condition under which anything appears as 'mine' at all. The minimal self is the hardest version of the realist objection: even after stripping memory, narrative, and social comparison, something remains. Statement 05 does not refute Zahavi — it pushes the question one level deeper: what is the status of that minimal ownership-sense? Is it itself an appearance?",
+                url: "https://plato.stanford.edu/entries/self-consciousness-phenomenological/"
+              }
+            ]
+          },
+          {
+            title: "The knower cannot be found as an object.",
+            pointer: [
+              "Now try the move the mind always tries: 'Fine. The witness-feeling is constructed. But what is aware of that?'",
+              "Ask the question directly: what is aware of this thought?",
+              "Whatever you point to as the answer will be another thing you can notice: a feeling, an image, a spaciousness, a silence.",
+              "Catch the pattern: the moment you can report it, it is content.",
+              "So the search fails in a precise way: you cannot turn the knower into an object without making it a known thing.",
+              "Try a practical loop three times: notice a thought -> ask 'what knows this?' -> notice what appears as the answer -> ask again.",
+              "Do not finish with a sentence. See the limit.",
+              "The wall is simple: the eye cannot see itself seeing. The knower cannot occupy the object-position.",
+              "This is not nihilism. It is a pointer to what concepts cannot touch."
+            ],
+            related: [
+              {
+                title: "Nisargadatta Maharaj",
+                desc:
+                  "\"The 'I am' is itself the witness. You cannot find the witness because you are the witness. But you can stop confusing yourself with what you witness.\" The search for a knower-object inside experience is exactly backwards.",
+                url: "https://en.wikipedia.org/wiki/Nisargadatta_Maharaj"
+              },
+              {
+                title: "QBism — Fuchs, Mermin, Schack",
+                desc:
+                  "In quantum mechanics, the observer is presupposed by the formalism but cannot appear inside it without infinite regress. The wave function is not a description of the world — it's an agent's tool for updating beliefs. The agent is always prior to the formalism. This is structurally identical to the situation here: the knower cannot appear as a term in the field it makes possible.",
+                url: "https://en.wikipedia.org/wiki/QBism"
+              },
+              {
+                title: "Ramana Maharshi — Self-Enquiry",
+                desc:
+                  "\"Who am I?\" — not as a metaphysical question but as a direct investigative practice. When the I-thought is followed to its source, it dissolves. What remains is not nothing — it is the natural state prior to the arising of the I-thought. Ramana's insight: the I cannot be an object of the I.",
+                url: "https://en.wikipedia.org/wiki/Ramana_Maharshi"
+              },
+              {
+                title: "Crowley — Holy Guardian Angel",
+                desc:
+                  "Crowley's HGA resists the cheap resolution. It is not your refined ego promoted to divinity — it is something encountered as genuinely other, even as it is somehow identical with your deepest will. The knower can't be found as an object. But what is found when the search is done correctly might not be a blank either. Speculatively: perhaps the limit of the search is not pure emptiness but encounter.",
+                url: "https://en.wikipedia.org/wiki/Holy_Guardian_Angel"
+              }
+            ]
+          },
+          {
+            title: "No concept about the knower can land.",
+            pointer: [
+              "Concepts have one shape: a subject describing an object.",
+              "So every concept about the knower requires turning the knower into an object.",
+              "That is why every concept fails here: not because the knower is absent, but because concepts can only use the wrong tool.",
+              "Run the test in real time. Say silently: 'I have awareness.' Notice: that sentence appears as a thought.",
+              "Say: 'I am awareness.' Notice: another thought. It is known. It changes. It ends.",
+              "Say: 'There is no self.' Notice: still a thought about self. The mind loves this one because it can wear it as a badge.",
+              "Say: 'Awareness is beyond categories.' Notice: a category about beyond-category.",
+              "Krishnamurti's warning is practical: the mind turns even truth into another identity. Catch that theft.",
+              "So use sentences as pointers, then drop them. Do not live in them."
+            ],
+            related: [
+              {
+                title: "Śrīharṣa — Khaṇḍana-khaṇḍa-khādya (The Sweets of Refutation)",
+                desc:
+                  "12th-century Advaita philosopher Śrīharṣa demolished the Nyāya school's definitions not by proposing better definitions but by showing exhaustively why any definition of the real fails. His method (vitaṇḍā) is pure refutation without counter-thesis — and he explicitly defends this as a valid logical move. Not nihilism. A clearing operation. The document you are reading uses the same structure.",
+                url: "https://plato.stanford.edu/entries/sriharsa/"
+              },
+              {
+                title: "Abhinavagupta — Recognition is Subtraction",
+                desc:
+                  "Recognition (pratyabhijñā) is not acquisition of a new idea. It is the collapse of a misidentification already in place. The self is already identical with consciousness. The problem is not that it doesn't know this — it knows itself as something smaller than it is. Recognition is subtraction of a false location, not addition of a new insight. Which is why no new idea can produce it.",
+                url: "https://en.wikipedia.org/wiki/Abhinavagupta"
+              },
+              {
+                title: "Bhartrhari — The Limit of Language",
+                desc:
+                  "The flash of meaning (pratibhā) cannot itself be captured in another utterance. Any proposition about consciousness points beyond itself. The signifier always points; it cannot be the thing pointed at. This structural limit applies to all statements about the knower — including this one.",
+                url: "https://iep.utm.edu/bhartrihari/"
+              },
+              {
+                title: "Krishnamurti — The Trap of Method",
+                desc:
+                  "If you turn \"no-method\" into a method, you're back inside the problem. Krishnamurti refused to offer systems because systems become objects of identification. The teaching is not the truth. Looking is the truth.",
+                url: "https://en.wikipedia.org/wiki/Jiddu_Krishnamurti"
+              },
+              {
+                title: "Steiner — Transformed Thinking",
+                desc:
+                  "A point of constructive tension: Steiner argued that thinking itself can be transformed from dead conceptual shell into a living spiritual organ of perception — intuitive thinking, not discursive thinking. This resists simple anti-conceptualism and raises the question: is the problem concepts as such, or a specific mode of holding them?",
+                url: "https://en.wikipedia.org/wiki/Rudolf_Steiner"
+              }
+            ]
+          },
+          {
+            title: "Run the four positions. Watch each fail.",
+            pointer: [
+              "Do this cleanly. Give each position fifteen seconds. No debate. Just observe what happens.",
+              "Position 1: 'Awareness is something I have.' Find the owner. Where is the 'I' that possesses? What is it made of?",
+              "Position 2: 'I am a self inside awareness.' Notice the picture you create: a thing-in-a-container. Now ask: who knows the container?",
+              "Position 3: 'I am awareness.' As a pointer, fine. As a thought you hold, watch it become content. The thought is not what it points to.",
+              "Position 4: 'The knower is beyond all positions.' Notice: that is a position stated in thought.",
+              "All four collapse the same way: each uses the subject-object structure to capture what cannot be captured as an object.",
+              "Nagarjuna's move is not pessimism. It is a stop sign: stop trying to solve the knower with thought.",
+              "When thought cannot stabilise itself here, something else can be noticed. That's the opening."
+            ],
+            related: [
+              {
+                title: "Nāgārjuna — Catuṣkoṭi (The Tetralemma)",
+                desc:
+                  "The fourfold negation: a proposition P holds; P does not hold; both; neither. Nāgārjuna applies this exhaustively to any candidate for inherent existence. All four arms fail. What this produces is not skepticism or nihilism — it produces śūnyatā, openness, the viewless view. The four positions above are the catuṣkoṭi applied directly to the observer.",
+                url: "https://en.wikipedia.org/wiki/Catu%E1%B9%A3ko%E1%B9%ADi"
+              },
+              {
+                title: "Tsongkhapa — Preventing the Slide into Nihilism",
+                desc:
+                  "Tsongkhapa's genius is precision. Emptiness is not nothingness. When all four positions fail, the temptation is to conclude \"therefore nothing exists.\" Tsongkhapa shows exhaustively why this is also a position — and a false one. Conventional reality continues. Ethics continues. Dependent origination continues. The failure of metaphysical grounding does not license the conclusion that nothing is real.",
+                url: "https://plato.stanford.edu/entries/tsongkhapa/"
+              },
+              {
+                title: "Melloni et al. 2023 — The Adversarial Collaboration",
+                desc:
+                  "A major formal adversarial collaboration between Integrated Information Theory (Tononi) and Global Neuronal Workspace Theory (Dehaene), run by a theory-neutral consortium across six independent labs, announced preliminary results in 2023 and published final results in Nature (2025). Results: both theories were substantially challenged. IIT lacked the predicted posterior synchronization; GNWT lacked the predicted prefrontal ignition at stimulus offset. Neither side changed its mind. The hard problem remains hard — precisely because it is structurally identical to this direct failure.",
+                url: "https://www.nature.com/articles/s41562-023-01540-6"
+              },
+              {
+                title: "Nyāya — The Realist Objection",
+                desc:
+                  "Navya-Nyāya is not here to flatter this framework. It proposes a real, enduring substantial self (ātman) as the only coherent account of memory, responsibility, and cognition across time. The Nyāya objection to the relational view: if there is no enduring knower, who remembers? Who is responsible? This objection has force and deserves a real answer, not dismissal. The answer: memory and responsibility require causal continuity, not substantial identity. A well-organised river has causal continuity. That doesn't make it a substance.",
+                url: "https://en.wikipedia.org/wiki/Navya-Ny%C4%81ya"
+              }
+            ]
+          },
+          {
+            title: "Stop producing. Notice what is already happening.",
+            pointer: [
+              "Do not try to become aware. Do not try to be present. Drop the project.",
+              "Right now: some sound, some sensation, some visual field, some thought. Something is happening.",
+              "Ask one question and do not answer with words: what is undeniable before you do anything about it?",
+              "Undeniable: appearance is occurring. Experience is happening.",
+              "Do not make a shrine out of that sentence. Check the fact.",
+              "Now watch the reflex that steals it: 'I have recognised this.' That is a new thought. A new badge.",
+              "The only instruction is negative: do not convert this into identity.",
+              "Recognition is not binary. It comes in degrees. What follows recognition is stabilisation, not a new belief."
+            ],
+            related: [
+              {
+                title: "Spanda — Kashmir Shaivism",
+                desc:
+                  "What remains when the false observer drops is not blank emptiness. It is spanda — the dynamic pulse of consciousness at rest, prior to any particular content. Liberation (jīvanmukti) in this tradition means seeing the world as the play (līlā) of this very consciousness. Everything still appears. The difference is that no one is standing outside it claiming private ownership.",
+                url: "https://en.wikipedia.org/wiki/Spanda"
+              },
+              {
+                title: "Plotinus — The One Beyond Predication",
+                desc:
+                  "Plotinus's One is not a further object to be found. It is what remains when the soul ceases its scattered, derivative existence and rests in its source. The move is not acquisition but recollection — the soul was never truly exiled. What appears in statement 09 is structurally the Plotinian moment: what remains after all predication fails.",
+                url: "https://plato.stanford.edu/entries/plotinus/"
+              },
+              {
+                title: "Meister Eckhart — Gelassenheit",
+                desc:
+                  "Releasement. Poverty of spirit. Eckhart's Christianity arrives at the same threshold from the devotional direction: the soul's deepest ground (Grund) is not alien to the divine ground. But you cannot reach it by adding — only by subtraction of possessive selfhood. The soul does not attain God. It releases the pretence of separation.",
+                url: "https://plato.stanford.edu/entries/meister-eckhart/"
+              },
+              {
+                title: "Abhidhamma — Cessation of the Three Roots",
+                desc:
+                  "When self-as-sovereign is released, moha (the structural misclassification), lobha (the grasping to extend the pattern), and dosa (the aversion to what threatens it) lose their compulsive character. They may still arise — but they no longer run the system. They arise in a field that is no longer organised around protecting them.",
+                url: "https://en.wikipedia.org/wiki/Kleshas_(Buddhism)"
+              },
+              {
+                title: "Rumi",
+                desc:
+                  "What floods in is not neutral. Once the contracted self loosens its grip, what arrives is not blankness but eros — grief, tenderness, intoxication, aliveness. Rumi is the affective version of this statement. The same structure, lived as love.",
+                url: "https://en.wikipedia.org/wiki/Rumi"
+              }
+            ]
+          },
+          {
+            title:
+              "Recognition is the end of self-exemption.",
+            pointer: [
+              "Look for one specific thing: the separate owner of experience.",
+              "Not the word. Not the idea. The felt reality of an independent observer who stands outside what appears.",
+              "Find it if you can.",
+              "What you will find are components: location in the head/face, the thought 'I', the contraction of ownership, the reflex to stand apart.",
+              "Each component can be noticed. If it can be noticed, it is content.",
+              "When this is seen directly, one claim collapses: the claim of self-exemption. 'Everything is conditioned except me.'",
+              "That collapse is recognition. Not a mood. Not a belief. The end of a specific mistake.",
+              "Then something follows that is not a moral conclusion bolted on. It is the same proof running one more step.",
+              "The false observer's self-exemption claimed not just independence from objects, but independence from other observers. Your suffering is in your field. Mine is in mine.",
+              "This partition was maintained by the same operation -- standing outside -- that has just been seen through.",
+              "You cannot de-exempt the observer from the field of objects while leaving its exemption from other subjects intact. The same move fails again, automatically.",
+              "This is the structural -- not moral -- ground of what the Mahayana calls the bodhisattva: recognition stabilised enough that the false boundary between self-suffering and other-suffering no longer functions as an absolute."
+            ],
+            related: [
+              {
+                title: "Śāntideva — Bodhicaryāvatāra, Ch. 8",
+                desc:
+                  "The most systematic philosophical account of why self-preference has no rational basis once the self is seen as empty of fixed existence. Śāntideva's argument: suffering is suffering regardless of whose it is. The label \"mine\" adds nothing to the phenomenology of pain. His verse is direct: \"And other beings' pain I do not feel, and yet, because I take them for myself, their suffering is mine and therefore hard to bear.\" The taking is no longer voluntary — for the recognised being, it is the natural state.",
+                url: "https://iep.utm.edu/santideva/"
+              },
+              {
+                title: "Abhinavagupta — Rasa Theory",
+                desc:
+                  "Abhinavagupta's aesthetics (Abhinavabhāratī) provides an experiential model: genuine aesthetic experience of a character's emotion temporarily dissolves the private observer boundary. You feel the character's grief as grief, not as their grief observed from outside. The bodhisattva is a person for whom this dissolution is permanent and total — not bounded by the frame of the theatre.",
+                url: "https://en.wikipedia.org/wiki/Abhinavagupta"
+              },
+              {
+                title: "Pratyabhijñā — Recognition Propagates",
+                desc:
+                  "Utpaladeva (Īśvara-pratyabhijñā-kārikā, 10th century CE): recognition removes doubt. The bodhisattva's function is to act as a living destabiliser of that doubt in others — not by transmitting doctrine but through the structural fact of their own recognition, which makes the false observer in others less stable in proximity. This is the guru function in this tradition: not information transfer but recognition propagating through contact.",
+                url: "https://en.wikipedia.org/wiki/Pratyabhijna"
+              },
+              {
+                title: "Iamblichus — Theurgy",
+                desc:
+                  "Correct theory is not sufficient. The soul is too embedded in embodiment to climb back purely through dialectic. Ritual, symbol, and enacted practice can transform the soul in ways thought alone cannot reach. This is historical precedent for the claim that recognition is not a cognitive event but a restructuring of the whole system — and that the conditions for it must be cultivated, not just argued for.",
+                url: "https://iep.utm.edu/neoplato/"
+              },
+              {
+                title: "Laya Yoga — Dissolution Practice",
+                desc:
+                  "Laya Yoga maps the path as progressive dissolution of contracted formations back into subtler unity. Not annihilation — absorption. The ordinary centre is not destroyed but revealed to have never been the ground.",
+                url: "https://en.wikipedia.org/wiki/Laya_yoga"
+              }
+            ]
+          }
+        ];
+
+        var stage = document.getElementById("stage");
+        var k = document.getElementById("k");
+        var statement = document.getElementById("statement");
+        var pointer = document.getElementById("pointer");
+        var relatedDetails = document.getElementById("relatedDetails");
+        var relatedCount = document.getElementById("relatedCount");
+        var relatedList = document.getElementById("relatedList");
+
+        var dockLabel = document.getElementById("dockLabel");
+        var prev = document.getElementById("prev");
+        var next = document.getElementById("next");
+
+        var idx = 0;
+
+        function pad2(n) {
+          return n < 10 ? "0" + String(n) : String(n);
+        }
+
+        function clear(el) {
+          while (el.firstChild) el.removeChild(el.firstChild);
+        }
+
+        function setExternalTargets(root) {
+          var links = (root || document).querySelectorAll("a");
+          for (var i = 0; i < links.length; i++) {
+            var a = links[i];
+            var href = a.getAttribute("href") || "";
+            if (!href) continue;
+            if (href.startsWith("#")) continue;
+            try {
+              var u = new URL(href, window.location.href);
+              if (u.origin !== window.location.origin) {
+                a.setAttribute("target", "_blank");
+                a.setAttribute("rel", "noopener noreferrer");
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+
+        function renderPointerParagraphs(paras) {
+          clear(pointer);
+          for (var i = 0; i < paras.length; i++) {
+            var p = document.createElement("p");
+            p.textContent = paras[i];
+            pointer.appendChild(p);
+          }
+        }
+
+        function makeRelatedItem(it) {
+          var d = document.createElement("details");
+          d.className = "relItem";
+
+          var s = document.createElement("summary");
+          var t = document.createElement("div");
+          t.className = "relTitle";
+          t.textContent = it.title;
+          var arrow = document.createElement("div");
+          arrow.className = "relArrow";
+          arrow.textContent = "▼";
+          s.appendChild(t);
+          s.appendChild(arrow);
+          d.appendChild(s);
+
+          var body = document.createElement("div");
+          body.className = "relBody";
+
+          var desc = document.createElement("div");
+          desc.textContent = it.desc;
+          body.appendChild(desc);
+
+          if (it.url) {
+            var a = document.createElement("a");
+            a.className = "relLink";
+            a.href = it.url;
+            a.textContent = "Read more";
+            body.appendChild(a);
+          }
+
+          d.appendChild(body);
+          return d;
+        }
+
+        function renderRelated(items) {
+          clear(relatedList);
+
+          if (!items || items.length === 0) {
+            relatedCount.textContent = "(0)";
+            relatedDetails.open = false;
+            relatedDetails.style.display = "none";
+            return;
+          }
+
+          relatedDetails.style.display = "block";
+          relatedCount.textContent = "(" + String(items.length) + ")";
+          relatedDetails.open = false;
+
+          for (var i = 0; i < items.length; i++) {
+            relatedList.appendChild(makeRelatedItem(items[i]));
+          }
+
+          setExternalTargets(relatedList);
+        }
+
+        function repaint() {
+          var total = STATEMENTS.length;
+          var cur = idx + 1;
+          var label = "S" + pad2(cur) + "/" + String(total);
+
+          k.textContent = label;
+          dockLabel.textContent = label;
+
+          statement.textContent = STATEMENTS[idx].title;
+          renderPointerParagraphs(STATEMENTS[idx].pointer);
+          renderRelated(STATEMENTS[idx].related);
+
+          prev.disabled = idx <= 0;
+          next.disabled = idx >= total - 1;
+
+          try {
+            stage.classList.remove("swap");
+            void stage.offsetWidth;
+            stage.classList.add("swap");
+          } catch {
+            // ignore
+          }
+        }
+
+        function go(delta) {
+          var n = idx + delta;
+          if (n < 0 || n >= STATEMENTS.length) return;
+          idx = n;
+          repaint();
+          try {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } catch {
+            window.scrollTo(0, 0);
+          }
+        }
+
+        prev.addEventListener("click", function () {
+          go(-1);
+        });
+        next.addEventListener("click", function () {
+          go(1);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.defaultPrevented) return;
+          if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+          if (e.key === "ArrowLeft") go(-1);
+          if (e.key === "ArrowRight") go(1);
+        });
+
+        // Swipe left/right to navigate.
+        var touch = { x: 0, y: 0, t: 0 };
+        stage.addEventListener(
+          "touchstart",
+          function (e) {
+            var p = e.touches && e.touches[0];
+            if (!p) return;
+            touch.x = p.clientX;
+            touch.y = p.clientY;
+            touch.t = Date.now();
+          },
+          { passive: true }
+        );
+        stage.addEventListener(
+          "touchend",
+          function (e) {
+            var p = e.changedTouches && e.changedTouches[0];
+            if (!p) return;
+            var dx = p.clientX - touch.x;
+            var dy = p.clientY - touch.y;
+            var dt = Date.now() - touch.t;
+            if (dt > 700) return;
+            if (Math.abs(dx) < 52) return;
+            if (Math.abs(dx) < Math.abs(dy)) return;
+            if (dx < 0) go(1);
+            else go(-1);
+          },
+          { passive: true }
+        );
+
+        repaint();
+      })();
+    </script>
+  </body>
+</html>

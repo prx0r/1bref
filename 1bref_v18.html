@@ -1,0 +1,394 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+#app {
+  background: #07070e; min-height: 600px; display: flex; flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: rgba(255,255,255,0.7);
+  user-select: none; -webkit-user-select: none; overflow: hidden; position: relative;
+}
+.screen { display:none; flex:1; flex-direction:column; align-items:center; overflow:hidden; position:relative; }
+.screen.active { display:flex; }
+
+/* HOME — full screen is the hold target */
+#home-screen { cursor: pointer; touch-action: none; }
+#home-canvas-wrap { width:320px; height:320px; flex-shrink:0; margin-top:20px; pointer-events:none; }
+canvas { display:block; }
+#home-label {
+  margin-top:14px; font-size:10px; letter-spacing:0.2em; text-transform:uppercase;
+  color:rgba(255,255,255,0.14); text-align:center; min-height:1.2em; pointer-events:none;
+}
+
+/* NAV DOT — bottom of home, always visible */
+#nav-dot-wrap { margin-top:auto; padding:20px 0 18px; display:flex; justify-content:center; pointer-events:all; }
+#nav-dot { width:7px; height:7px; border-radius:50%; border:0.5px solid rgba(255,255,255,0.25); background:transparent; cursor:pointer; }
+#nav-dot:hover { background:rgba(255,255,255,0.15); }
+
+/* FOCUS HEADER — shown when a technique is selected, sits just above nav dot */
+#focus-header {
+  display:none; align-items:center; gap:8px;
+  font-size:10px; color:rgba(255,255,255,0.28); letter-spacing:0.06em;
+  pointer-events:all; padding-bottom:4px;
+}
+#focus-header.on { display:flex; }
+#focus-tech-name { color:rgba(255,255,255,0.45); }
+#clear-btn { font-size:9px; color:rgba(255,255,255,0.2); cursor:pointer; padding:2px 7px; border:0.5px solid rgba(255,255,255,0.12); border-radius:4px; }
+#clear-btn:hover { color:rgba(255,255,255,0.5); }
+
+/* INFO POPUP — slides up from bottom, triggered by tap/swipe in focus mode */
+#info-popup {
+  position:absolute; bottom:0; left:0; right:0; z-index:50;
+  background:rgba(10,10,20,0.97);
+  border-top:0.5px solid rgba(255,255,255,0.08);
+  border-radius:14px 14px 0 0;
+  padding:24px 20px 32px;
+  transform:translateY(100%);
+  transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);
+  max-height:72vh; overflow-y:auto;
+  pointer-events:all;
+}
+#info-popup.open { transform:translateY(0); }
+#info-drag-bar {
+  width:32px; height:3px; border-radius:2px;
+  background:rgba(255,255,255,0.12); margin:0 auto 18px;
+}
+#info-tech-name { font-size:13px; font-weight:500; color:rgba(255,255,255,0.65); margin-bottom:3px; }
+#info-tech-ratio { font-size:10px; color:rgba(255,255,255,0.2); letter-spacing:0.06em; margin-bottom:20px; }
+.info-block { margin-bottom:16px; }
+.info-heading { font-size:9px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-bottom:5px; }
+.info-body { font-size:11px; color:rgba(255,255,255,0.42); line-height:1.65; }
+
+/* LIST SCREEN */
+#list-screen { overflow-y:auto; width:100%; }
+#list-header { display:flex; align-items:center; justify-content:space-between; padding:16px 14px 12px; flex-shrink:0; width:100%; }
+#list-header span { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.18); font-weight:400; }
+#back-btn { width:7px; height:7px; border-radius:50%; border:0.5px solid rgba(255,255,255,0.25); background:transparent; cursor:pointer; }
+#back-btn:hover { background:rgba(255,255,255,0.15); }
+#col-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; padding:0 14px 24px; }
+.col-header { font-size:8px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.12); text-align:center; padding:0 0 6px; margin-bottom:2px; border-bottom:0.5px solid rgba(255,255,255,0.06); }
+.col { display:flex; flex-direction:column; gap:5px; }
+.tech-card { padding:9px 8px; border:0.5px solid rgba(255,255,255,0.08); border-radius:7px; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
+.tech-card:hover { border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.03); }
+.tech-card.selected { border-color:rgba(255,255,255,0.38); background:rgba(255,255,255,0.05); }
+.card-dot { width:6px; height:6px; border-radius:50%; display:inline-block; margin-bottom:5px; }
+.card-name { font-size:10px; color:rgba(255,255,255,0.65); font-weight:500; display:block; line-height:1.3; }
+.card-ratio { font-size:8.5px; color:rgba(255,255,255,0.22); display:block; margin-top:2px; }
+</style>
+
+<div id="app">
+  <!-- HOME -->
+  <div id="home-screen" class="screen active">
+    <div id="home-canvas-wrap"><canvas id="home-canvas" width="320" height="320"></canvas></div>
+    <div id="home-label">hold to breathe</div>
+
+    <!-- spacer pushes focus-header + nav-dot to bottom -->
+    <div style="flex:1"></div>
+
+    <div id="focus-header">
+      <span id="focus-tech-name"></span>
+      <span id="clear-btn">clear</span>
+    </div>
+    <div id="nav-dot-wrap"><div id="nav-dot"></div></div>
+
+    <!-- Info popup lives inside home screen so it's clipped correctly -->
+    <div id="info-popup">
+      <div id="info-drag-bar"></div>
+      <div id="info-tech-name"></div>
+      <div id="info-tech-ratio"></div>
+      <div class="info-block"><div class="info-heading">How to</div><div class="info-body" id="info-howto"></div></div>
+      <div class="info-block"><div class="info-heading">Effect</div><div class="info-body" id="info-effect"></div></div>
+      <div class="info-block"><div class="info-heading">Use</div><div class="info-body" id="info-use"></div></div>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div id="list-screen" class="screen">
+    <div id="list-header"><span>Focus</span><div id="back-btn"></div></div>
+    <div id="col-grid">
+      <div class="col" id="col-short"><div class="col-header">Short</div></div>
+      <div class="col" id="col-mid"><div class="col-header">Medium</div></div>
+      <div class="col" id="col-long"><div class="col-header">Long</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TECHNIQUES = [
+  { name:'Box Breath', ratio:'4·4·4·4', inhale:4, holdIn:4, exhale:4, holdOut:4, cycle:16,
+    howto:'Inhale for 4, hold for 4, exhale for 4, hold empty for 4. Trace the four equal sides of a square.',
+    effect:'Lowers cortisol, raises HRV, shifts the nervous system from fight-or-flight to rest-and-digest. Breath holds temporarily raise CO₂, which sedates the nervous system. Studies show cortisol reduction of up to 20% in minutes.',
+    use:'Before high-pressure situations — presentations, exams, difficult conversations. Used by Navy SEALs for stress regulation under pressure.' },
+  { name:'4-7-8', ratio:'4·7·8', inhale:4, holdIn:7, exhale:8, holdOut:0, cycle:19,
+    howto:'Inhale through the nose for 4, hold for 7, exhale completely through the mouth for 8. Place the tongue behind the upper front teeth throughout.',
+    effect:'The long hold builds CO₂, improving oxygen delivery to tissues. The extended exhale strongly activates the vagus nerve, slowing heart rate and lowering blood pressure.',
+    use:'Falling asleep, acute anxiety, panic. Best lying down — can cause lightheadedness. Limit to 4 cycles when starting.' },
+  { name:'Pursed Lip', ratio:'4·0·8', inhale:4, holdIn:0, exhale:8, holdOut:0, cycle:12,
+    howto:'Inhale through the nose for 4. Exhale slowly through pursed lips — as if blowing through a straw — for 8. No holding.',
+    effect:'Keeps airways open longer, improving gas exchange. The 1:2 ratio ensures full lung emptying before the next breath, boosting oxygen uptake.',
+    use:'After exertion, during anxiety, or for retraining breathing. Clinically recommended by Johns Hopkins for respiratory efficiency.' },
+  { name:'Extended Exhale', ratio:'4·0·8', inhale:4, holdIn:0, exhale:8, holdOut:0, cycle:12,
+    howto:'Inhale through the nose for 4, exhale slowly and fully for 8. Exhale is exactly twice the inhale. No pauses.',
+    effect:'The 1:2 ratio is the primary mechanism for vagus nerve activation. Each extended exhale triggers parasympathetic dominance. Even 2 minutes produces measurable calm.',
+    use:'Everyday stress, winding down after work, quick resets during a busy day. Most accessible and safest for general use.' },
+  { name:'Vagus 4:8', ratio:'4·0·8', inhale:4, holdIn:0, exhale:8, holdOut:0, cycle:12,
+    howto:'Inhale for 4, exhale for 8. Produces exactly 5 breath cycles per minute — the cardiovascular resonance frequency. Keep it smooth and consistent.',
+    effect:'5 breaths/min maximises heart rate variability — a key marker of cardiovascular health and stress resilience. Directly stimulates the vagus nerve.',
+    use:'HRV training, stress resilience building, quick downregulation before stressful events. Effective in as little as 2 minutes.' },
+  { name:'4-4-8', ratio:'4·4·8', inhale:4, holdIn:4, exhale:8, holdOut:0, cycle:16,
+    howto:'Inhale for 4, hold for 4, exhale slowly for 8. Shorter hold than 4-7-8, making this more accessible.',
+    effect:'Combines CO₂ build-up from the hold with vagal activation of a long exhale. A middle ground between box breathing (focus) and pure exhale techniques (calm).',
+    use:'Anxiety, stress, or transitions between intense tasks. When you want the focus-steadying effect of a hold alongside deep relaxation.' },
+  { name:'Coherent', ratio:'5·0·5', inhale:5, holdIn:0, exhale:5, holdOut:0, cycle:10,
+    howto:'Inhale through the nose for 5, exhale through the nose for 5. No pauses. The rhythm should feel like a slow, continuous wave.',
+    effect:'Produces exactly 6 breaths per minute — the human cardiovascular resonance frequency. Synchronises heart rate, blood pressure, and respiration into coherent oscillation. A 2017 RCT found it significantly reduced depression symptoms.',
+    use:'Daily practice for long-term HRV improvement. Ideal before meditation, sleep, or post-exercise. The most sustainable everyday technique.' },
+  { name:'Cyclic Sigh', ratio:'5·0·8', inhale:5, holdIn:0, exhale:8, holdOut:0, cycle:13,
+    howto:'Full inhale through the nose. At the top, a second shorter sniff to fully pack the lungs. Then exhale slowly and completely through the mouth for 8 seconds.',
+    effect:'The double inhale recruits collapsed alveoli. The long exhale offloads CO₂ rapidly, activating the parasympathetic system. Stanford RCT (2023): outperformed box breathing and mindfulness meditation for daily mood improvement.',
+    use:'Immediate anxiety or stress relief. 5 minutes daily showed lasting mood benefits. Effects compound with consecutive days of practice.' },
+  { name:'Diaphragmatic', ratio:'5·0·7', inhale:5, holdIn:0, exhale:7, holdOut:0, cycle:12,
+    howto:'Place one hand on the belly. Inhale through the nose for 5 — belly rises, not chest. Exhale slowly for 7, feeling the belly fall.',
+    effect:'Engages the diaphragm, mechanically stimulating the vagus nerve. Increases tidal volume, reduces breathing rate. Systematic reviews confirm significant cortisol reduction.',
+    use:'Foundation skill — practice twice daily for 10 minutes to retrain shallow breathing. Effective for chronic stress, anxiety, and pain management.' },
+  { name:'Visamavrtti', ratio:'5·20·10', inhale:5, holdIn:20, exhale:10, holdOut:0, cycle:35,
+    howto:'Inhale for 5, hold fully retained for 20, exhale slowly for 10. Classical 1:4:2 ratio. Never strain — reduce all phases proportionally if uncomfortable.',
+    effect:'Extended retention raises CO₂, promoting cerebral vasodilation and a deeply altered state of stillness. Used in meditative traditions for thousands of years to quieten the mind.',
+    use:'Advanced meditation practice. Not for beginners. Require comfortable breath-holding ability. Work up gradually starting with 5·10·10.' },
+  { name:'Sama Vritti', ratio:'6·0·6', inhale:6, holdIn:0, exhale:6, holdOut:0, cycle:12,
+    howto:'Inhale for 6, exhale for 6. Equal breath in both directions. Breathe through the nose. Keep the pace steady and the depth full.',
+    effect:'Equal breathing creates symmetrical autonomic stimulation — inhale activates slight alertness, exhale triggers parasympathetic dominance. Shown to reduce blood pressure and improve baroreflex sensitivity.',
+    use:'Morning practice, before sustained focus tasks, or as a meditation anchor. More alerting than 5:5 — good when you need calm clarity.' },
+  { name:'Resonance', ratio:'6·0·6', inhale:6, holdIn:0, exhale:6, holdOut:0, cycle:12,
+    howto:'Inhale for 6, exhale for 6 — with no perceptible pause. The breath flows like a continuous circle, one phase directly into the next.',
+    effect:'The connected rhythm places heart, lungs, and circulation into peak synchrony. Eliminates dead time between phases, maximising HRV amplitude and baroreflex gain throughout the cycle.',
+    use:'HRV biofeedback training, deep meditation, or when you want the deepest physiological coherence.' },
+  { name:'Wim Hof', ratio:'6·0·3', inhale:6, holdIn:0, exhale:3, holdOut:0, cycle:9,
+    howto:'Inhale fully and deeply for 6 — belly first, then chest. Let the exhale go passively and quickly for 3. No forcing. Repeat for 30 breaths, then exhale fully and hold empty.',
+    effect:'Inhale-dominant breathing raises O₂ and lowers CO₂, producing controlled alkalosis — increasing energy and reducing fatigue. Energising rather than calming. Shown to influence immune response.',
+    use:'Morning energy boost, before cold exposure, athletic preparation. Not for driving or water. Always practice sitting or lying down.' },
+  { name:'Nadi Shodhana', ratio:'4·16·8', inhale:4, holdIn:16, exhale:8, holdOut:0, cycle:28,
+    howto:'Inhale for 4, hold for 16, exhale for 8. Classical 1:4:2 pranayama ratio. Traditionally through alternate nostrils. Keep the hold relaxed — no strain.',
+    effect:'The long retention balances hemispheric brain activity. EEG studies confirm measurable changes in bilateral coherence. RCTs show significant blood pressure reductions and HRV improvements.',
+    use:'Before meditation, during mental fatigue, or when one side of the mind feels overactivated. Consistently lowers blood pressure in clinical trials.' },
+  { name:'Pranayama 1:0:2', ratio:'7·0·14', inhale:7, holdIn:0, exhale:14, holdOut:0, cycle:21,
+    howto:'Inhale slowly and deeply for 7 seconds. Exhale fully for 14 — twice as long. No holding. The exhale should be slow, controlled, and complete.',
+    effect:'Maximises lung emptying, strengthens the diaphragm, and produces the longest continuous vagus nerve activation of any technique here. Cumulative HRV and respiratory muscle benefits with regular practice.',
+    use:'Advanced daily practice for lung capacity and deep parasympathetic activation. Work up gradually — the 14-second exhale requires real breath control.' },
+];
+
+function techColor(inhale){
+  const t=(inhale-4)/3;
+  const stops=[[190,100,90],[188,130,80],[120,162,120],[90,140,170],[128,95,182]];
+  const seg=t*(stops.length-1),i=Math.min(Math.floor(seg),stops.length-2),f=seg-i;
+  return stops[i].map((v,j)=>Math.round(v+f*(stops[i+1][j]-v)));
+}
+
+const canvas=document.getElementById('home-canvas');
+const ctx=canvas.getContext('2d');
+const SIZE=320,DPR=window.devicePixelRatio||2;
+canvas.width=SIZE*DPR;canvas.height=SIZE*DPR;
+canvas.style.width=SIZE+'px';canvas.style.height=SIZE+'px';
+ctx.scale(DPR,DPR);
+const CX=SIZE/2,CY=SIZE/2,HOME_R=30,MAX_R=(SIZE/2)-12;
+function inhaleToMaxR(i){return HOME_R+(MAX_R-HOME_R)*(0.38+Math.min((i-4)/3,1)*0.62);}
+
+let rings=TECHNIQUES.map(tech=>({tech,color:techColor(tech.inhale),maxR:inhaleToMaxR(tech.inhale),r:HOME_R,phase:'home',t:0,visible:true}));
+let holding=false,focusIndex=-1,lastTs=null,audioCtx=null;
+let infoOpen=false;
+
+function getAC(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+async function playClick(freq,gain,dur){
+  try{
+    const ac=getAC();
+    if(ac.state==='suspended')await ac.resume();
+    const len=Math.floor(ac.sampleRate*dur);
+    const buf=ac.createBuffer(1,len,ac.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++){const env=Math.exp(-i/(len*0.06));d[i]=(Math.random()*2-1)*env*0.7+Math.sin(2*Math.PI*freq*i/ac.sampleRate)*env*0.3;}
+    const src=ac.createBufferSource();src.buffer=buf;
+    const filt=ac.createBiquadFilter();filt.type='bandpass';filt.frequency.value=freq;filt.Q.value=5;
+    const g=ac.createGain();g.gain.value=gain;
+    src.connect(filt);filt.connect(g);g.connect(ac.destination);
+    src.start();src.stop(ac.currentTime+dur);
+  }catch(e){}
+}
+const sndInhale  =()=>playClick(850,0.5, 0.08);
+const sndHoldIn  =()=>playClick(560,0.32,0.11);
+const sndExhale  =()=>playClick(340,0.25,0.14);
+const sndHoldOut =()=>playClick(200,0.2, 0.18);
+
+function easeIn(t){return 1-Math.pow(1-t,2.2);}
+function easeEx(t){return t*t*(3-2*t)*0.6+t*0.4;}
+
+function updateRing(s,dt){
+  if(s.phase==='home'){s.r=HOME_R;return;}
+  const tech=s.tech;
+  if(s.phase==='inhale'){
+    s.t+=dt;s.r=HOME_R+(s.maxR-HOME_R)*easeIn(Math.min(s.t/tech.inhale,1));
+    if(s.t>=tech.inhale){s.r=s.maxR;s.phase=tech.holdIn>0?'holdIn':'exhale';s.t=0;}
+  }else if(s.phase==='holdIn'){
+    s.t+=dt;s.r=s.maxR;if(s.t>=tech.holdIn){s.phase='exhale';s.t=0;}
+  }else if(s.phase==='exhale'){
+    s.t+=dt;s.r=s.maxR-(s.maxR-HOME_R)*easeEx(Math.min(s.t/tech.exhale,1));
+    if(s.t>=tech.exhale){s.r=HOME_R;s.phase=tech.holdOut>0?'holdOut':'home';s.t=0;}
+  }else if(s.phase==='holdOut'){
+    s.t+=dt;s.r=HOME_R;if(s.t>=tech.holdOut){s.phase='home';s.t=0;}
+  }
+}
+
+function updateFocus(s,dt){
+  const prev=s.phase;
+  updateRing(s,dt);
+  const curr=s.phase;
+  if(prev===curr)return;
+  if(curr==='holdIn')  sndHoldIn();
+  if(curr==='exhale')  sndExhale();
+  if(curr==='holdOut') sndHoldOut();
+  if(curr==='home'){
+    requestAnimationFrame(()=>{
+      if(focusIndex<0)return;
+      s.phase='inhale';s.t=0;s.r=HOME_R;sndInhale();
+    });
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,SIZE,SIZE);
+  [...rings].filter(s=>s.visible).sort((a,b)=>b.r-a.r).forEach(s=>{
+    const[r,g,b]=s.color;
+    ctx.beginPath();ctx.arc(CX,CY,Math.min(s.r,MAX_R),0,Math.PI*2);
+    ctx.strokeStyle=`rgb(${r},${g},${b})`;ctx.lineWidth=1.0;ctx.stroke();
+  });
+}
+
+function loop(ts){
+  if(!lastTs)lastTs=ts;
+  const dt=Math.min((ts-lastTs)/1000,0.08);lastTs=ts;
+  if(focusIndex>=0)updateFocus(rings[focusIndex],dt);
+  else rings.forEach(s=>{if(s.visible)updateRing(s,dt);});
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── HOME SCREEN INTERACTIONS ──────────────────────────────────
+// The entire home screen registers hold — EXCEPT the nav dot, clear btn, and info popup
+const homeScreen = document.getElementById('home-screen');
+const infoPopup  = document.getElementById('info-popup');
+const navDotWrap = document.getElementById('nav-dot-wrap');
+const focusHeader= document.getElementById('focus-header');
+
+function isInteractiveElement(el){
+  // Don't start hold if touching nav dot, clear btn, or info popup
+  return el.closest('#nav-dot-wrap') || el.closest('#clear-btn') || el.closest('#info-popup');
+}
+
+homeScreen.addEventListener('mousedown', e => {
+  if(isInteractiveElement(e.target)) return;
+  if(focusIndex >= 0){
+    // In focus mode — tap opens/closes info
+    if(!infoOpen){ openInfo(); } else { closeInfo(); }
+    return;
+  }
+  // Normal mode — start hold
+  if(holding) return;
+  holding=true;
+  rings.forEach(s=>{if(s.visible){s.phase='inhale';s.t=0;s.r=HOME_R;}});
+  document.getElementById('home-label').textContent='';
+});
+
+homeScreen.addEventListener('touchstart', e => {
+  if(isInteractiveElement(e.target)) return;
+  e.preventDefault();
+  if(focusIndex >= 0){
+    if(!infoOpen){ openInfo(); } else { closeInfo(); }
+    return;
+  }
+  if(holding) return;
+  holding=true;
+  rings.forEach(s=>{if(s.visible){s.phase='inhale';s.t=0;s.r=HOME_R;}});
+  document.getElementById('home-label').textContent='';
+}, {passive:false});
+
+document.addEventListener('mouseup', () => {
+  if(!holding) return; holding=false;
+  setTimeout(()=>{if(focusIndex<0)document.getElementById('home-label').textContent='hold to breathe';},1500);
+});
+document.addEventListener('touchend', () => {
+  if(!holding) return; holding=false;
+  setTimeout(()=>{if(focusIndex<0)document.getElementById('home-label').textContent='hold to breathe';},1500);
+});
+
+// ── INFO POPUP ────────────────────────────────────────────────
+function openInfo(){
+  infoOpen=true;
+  infoPopup.classList.add('open');
+}
+function closeInfo(){
+  infoOpen=false;
+  infoPopup.classList.remove('open');
+}
+
+// Swipe down on popup to close
+let touchStartY=0;
+infoPopup.addEventListener('touchstart', e=>{ touchStartY=e.touches[0].clientY; }, {passive:true});
+infoPopup.addEventListener('touchend', e=>{
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(dy > 60) closeInfo();
+}, {passive:true});
+
+// ── NAV & CLEAR ───────────────────────────────────────────────
+document.getElementById('nav-dot').addEventListener('click', e=>{
+  e.stopPropagation(); showScreen('list-screen');
+});
+document.getElementById('back-btn').addEventListener('click', ()=>showScreen('home-screen'));
+
+document.getElementById('clear-btn').addEventListener('click', e=>{
+  e.stopPropagation();
+  focusIndex=-1;
+  rings.forEach(s=>{s.visible=true;s.phase='home';s.t=0;s.r=HOME_R;});
+  document.getElementById('focus-header').classList.remove('on');
+  document.getElementById('home-label').textContent='hold to breathe';
+  document.querySelectorAll('.tech-card').forEach(c=>c.classList.remove('selected'));
+  closeInfo();
+});
+
+// ── FOCUS SELECT ──────────────────────────────────────────────
+function setFocus(index){
+  focusIndex=index;
+  closeInfo();
+  rings.forEach((s,i)=>{s.visible=i===index;s.phase='home';s.t=0;s.r=HOME_R;});
+
+  const t=TECHNIQUES[index];
+  document.getElementById('focus-tech-name').textContent=t.name;
+  document.getElementById('focus-header').classList.add('on');
+  document.getElementById('home-label').textContent='';
+
+  // Populate info
+  document.getElementById('info-tech-name').textContent=t.name;
+  document.getElementById('info-tech-ratio').textContent=t.ratio;
+  document.getElementById('info-howto').textContent=t.howto;
+  document.getElementById('info-effect').textContent=t.effect;
+  document.getElementById('info-use').textContent=t.use;
+
+  document.querySelectorAll('.tech-card').forEach((c,i)=>c.classList.toggle('selected',i===index));
+  requestAnimationFrame(()=>{rings[index].phase='inhale';rings[index].t=0;rings[index].r=HOME_R;sndInhale();});
+  showScreen('home-screen');
+}
+
+// ── BUILD LIST ────────────────────────────────────────────────
+TECHNIQUES.forEach((tech,idx)=>{
+  const[r,g,b]=techColor(tech.inhale);
+  const card=document.createElement('div');
+  card.className='tech-card';
+  card.innerHTML=`<div class="card-dot" style="background:rgb(${r},${g},${b})"></div><span class="card-name">${tech.name}</span><span class="card-ratio">${tech.ratio}</span>`;
+  card.addEventListener('click',()=>setFocus(idx));
+  const col=tech.cycle<=13?'col-short':tech.cycle<=20?'col-mid':'col-long';
+  document.getElementById(col).appendChild(card);
+});
+
+requestAnimationFrame(loop);
+</script>

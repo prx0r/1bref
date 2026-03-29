@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#07070e" />
+    <title>1bref</title>
+    <style>
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: #07070e;
+        color: rgba(255,255,255,0.6);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      }
+      #boot { display: grid; place-items: center; height: 100%; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <div id="boot">Loading</div>
+    <noscript>This app requires JavaScript enabled.</noscript>
+    <script>
+      (async function () {
+        try {
+          const res = await fetch('1bref_v18.html', { cache: 'no-store' });
+          if (!res.ok) throw new Error('Failed to load 1bref_v18.html (' + res.status + ')');
+          const text = await res.text();
+
+          const styleRe = /<style\b[^>]*>([\s\S]*?)<\/style>/i;
+          const scriptRe = /<script\b[^>]*>([\s\S]*?)<\/script>/i;
+          const styleMatch = text.match(styleRe);
+          const scriptMatch = text.match(scriptRe);
+          const bodyHtml = text
+            .replace(styleRe, '')
+            .replace(scriptRe, '')
+            .trim();
+
+          if (styleMatch && styleMatch[1]) {
+            const s = document.createElement('style');
+            s.textContent = styleMatch[1];
+            document.head.appendChild(s);
+          }
+
+          (function addFontsAndType() {
+            const head = document.head;
+            if (!head) return;
+            if (!document.getElementById('font-preconnect-gfonts')) {
+              const p1 = document.createElement('link');
+              p1.id = 'font-preconnect-gfonts';
+              p1.rel = 'preconnect';
+              p1.href = 'https://fonts.googleapis.com';
+              head.appendChild(p1);
+
+              const p2 = document.createElement('link');
+              p2.rel = 'preconnect';
+              p2.href = 'https://fonts.gstatic.com';
+              p2.crossOrigin = 'anonymous';
+              head.appendChild(p2);
+
+              const l = document.createElement('link');
+              l.rel = 'stylesheet';
+              l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap';
+              head.appendChild(l);
+            }
+
+            const s = document.createElement('style');
+            s.textContent = [
+              ':root{--font-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--font-display:"Fraunces",serif;}',
+              '#app{font-family:var(--font-ui);}',
+              '#focus-tech-name,#info-tech-name,.card-name{font-family:var(--font-display);font-optical-sizing:auto;letter-spacing:-0.01em;}',
+              '#home-label,#list-header span,.info-heading,.card-ratio{font-family:var(--font-ui);}',
+            ].join('');
+            head.appendChild(s);
+          })();
+
+          // Mobile full-screen + safe-area overrides (do not touch 1bref_v18.html).
+          (function addMobileCssOverrides() {
+            const s = document.createElement('style');
+            s.textContent = [
+              ':root{--app-vh:1vh;}',
+              'html,body{height:100%;width:100%;margin:0;}',
+              '#app{width:100vw;min-height:100svh;height:100svh;min-height:calc(var(--app-vh) * 100);height:calc(var(--app-vh) * 100);}',
+              '.screen{min-height:0;}',
+              '#home-screen{width:100%;height:100%;}',
+              '#home-canvas-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:0 !important;}',
+              '#home-label{position:absolute;left:50%;top:calc(50% + min(182px,24vh));transform:translateX(-50%);margin-top:0 !important;}',
+              '#nav-dot{width:14px;height:14px;border-width:1px;}',
+              '#nav-dot-wrap{padding-bottom:calc(18px + env(safe-area-inset-bottom));}',
+              '#info-popup{padding-bottom:calc(32px + env(safe-area-inset-bottom));}',
+              '#list-header{padding-top:calc(16px + env(safe-area-inset-top));}',
+            ].join('');
+            document.head.appendChild(s);
+          })();
+
+          document.body.innerHTML = bodyHtml;
+
+          (function mountLatty() {
+            // Renders latty.png in the bottom-right.
+            const app = document.getElementById('app');
+            if (!app) return;
+            if (document.getElementById('latty')) return;
+
+            const img = document.createElement('img');
+            img.id = 'latty';
+            img.src = 'latty.png';
+            img.alt = '';
+            img.decoding = 'async';
+            img.loading = 'lazy';
+            img.addEventListener('click', function (e) {
+              try { e.preventDefault(); } catch (err) {}
+              try { e.stopPropagation(); } catch (err) {}
+
+              const go = function () {
+                window.location.href = 'meditation_mobile_10_minimal.html';
+              };
+
+              try {
+                if (document.startViewTransition) document.startViewTransition(go);
+                else go();
+              } catch (err) {
+                go();
+              }
+            });
+            app.appendChild(img);
+
+            const s = document.createElement('style');
+            s.textContent = [
+              '#latty{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));',
+              'width:clamp(28px,6vw,56px);height:auto;opacity:0.22;',
+              'pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none;',
+              'filter:invert(1) drop-shadow(0 10px 24px rgba(0,0,0,0.55));z-index:40;}',
+            ].join('');
+            document.head.appendChild(s);
+          })();
+
+          (function persistNavDot() {
+            // Keep nav dot visible across screens; use it as a toggle.
+            const app = document.getElementById('app');
+            const home = document.getElementById('home-screen');
+            const list = document.getElementById('list-screen');
+            const wrap = document.getElementById('nav-dot-wrap');
+            const dot = document.getElementById('nav-dot');
+            if (!app || !home || !list || !wrap || !dot) return;
+
+            // Move the existing wrap to be a direct child of #app so it doesn't disappear.
+            if (wrap.parentElement !== app) app.appendChild(wrap);
+
+            function show(id) {
+              try {
+                if (typeof window.showScreen === 'function') return window.showScreen(id);
+              } catch (e) {}
+              document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+              const el = document.getElementById(id);
+              if (el) el.classList.add('active');
+            }
+
+            dot.addEventListener(
+              'click',
+              function (e) {
+                try { e.preventDefault(); } catch (err) {}
+                try { e.stopImmediatePropagation(); } catch (err) {}
+                try { e.stopPropagation(); } catch (err) {}
+                if (list.classList.contains('active')) show('home-screen');
+                else show('list-screen');
+              },
+              true
+            );
+          })();
+
+          (function setAppVhVar() {
+            function apply() {
+              const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+              document.documentElement.style.setProperty('--app-vh', (h * 0.01) + 'px');
+            }
+            apply();
+            window.addEventListener('resize', apply);
+            if (window.visualViewport) window.visualViewport.addEventListener('resize', apply);
+            window.addEventListener('orientationchange', apply);
+          })();
+
+          if (scriptMatch && scriptMatch[1]) {
+            const s = document.createElement('script');
+            let appJs = scriptMatch[1];
+
+            // Technique list tweaks (without editing 1bref_v18.html):
+            // - Remove Pursed Lip
+            // - Merge Extended Exhale + Vagus 4:8 -> Vagus
+            // - Merge Resonance -> Sama Vritti (remove Resonance)
+            appJs = appJs
+              .replace(/\n\s*\{\s*name:'Pursed Lip'[\s\S]*?\}\s*,\s*/m, '\n')
+              .replace(/\n\s*\{\s*name:'Extended Exhale'[\s\S]*?\}\s*,\s*/m, '\n')
+              .replace(/\n\s*\{\s*name:'Resonance'[\s\S]*?\}\s*,\s*/m, '\n')
+              .replace(/name:'Vagus 4:8'/g, "name:'Vagus'");
+
+            // Allow inhale < 4s without crashing color/size mapping.
+            appJs = appJs
+              .replace(
+                'const t=(inhale-4)/3;',
+                'const t=Math.max(0,Math.min((inhale-4)/3,1));'
+              )
+              .replace(
+                /function inhaleToMaxR\(i\)\{return HOME_R\+\(MAX_R-HOME_R\)\*\(0\.38\+Math\.min\(\(i-4\)\/3,1\)\*0\.62\);\}/,
+                "function inhaleToMaxR(i){\n  // Preserve original mapping for i>=4; keep smaller inhales visible.\n  if(i < 4){\n    const y=Math.max(0,Math.min(i/4,1));\n    const minBase=0.22;\n    const base=0.38;\n    return HOME_R+(MAX_R-HOME_R)*(minBase+(base-minBase)*y);\n  }\n  return HOME_R+(MAX_R-HOME_R)*(0.38+Math.min((i-4)/3,1)*0.62);\n}"
+              );
+
+            // Curate what shows on the default multi-ring home view.
+            // Keep the home screen smooth + cohesive (no holds, no rapid techniques, no near-duplicates).
+            appJs = appJs
+              .replace(
+                "const canvas=document.getElementById('home-canvas');",
+                "function homeDefaultVisible(tech){\n" +
+                  "  if(!tech||!tech.name) return false;\n" +
+                  "  // Smooth, continuous rhythms only.\n" +
+                  "  const allow=['Taixi (Embryonic)','Pas-i-Anfas','Diaphragmatic','Sama Vritti','Pranayama 1:0:2'];\n" +
+                  "  return allow.indexOf(tech.name) !== -1;\n" +
+                  "}\n\n" +
+                  "const canvas=document.getElementById('home-canvas');"
+              )
+              .replace('visible:true}));', 'visible:homeDefaultVisible(tech)}));')
+              .replace(/s\.visible=true;/g, 's.visible=!!(s.tech&&homeDefaultVisible(s.tech));');
+
+            // Add additional techniques.
+            appJs = appJs.replace(
+              /\n\];\n\s*\nfunction techColor/m,
+              "\n  { name:'Kapalabhati', ratio:'0\\u00b70\\u00b71', inhale:0, holdIn:0, exhale:1, holdOut:0, cycle:1,\n" +
+                "    howto:'Sit tall. Take a half-inhale and begin pumping: forceful sharp exhales through the nose driven by snapping the belly in, with passive automatic inhales between each pump. Start at one pump per second and build to two per second. Run for 30-60 pumps, then exhale fully and sit in stillness.',\n" +
+                "    effect:'Clears stale air from the lungs, stimulates the solar plexus, and builds heat. Studies report improved pulmonary function and sharper cognitive performance despite the activating feel. Traditionally classified as a cleansing kriya in Hatha Yoga, not just pranayama.',\n" +
+                "    use:'Morning energy reset, creative blocks, mental fog, before meditation. Avoid with high blood pressure, heart conditions, or during pregnancy.' },\n" +
+                "  { name:'Bhramari', ratio:'4\\u00b70\\u00b78', inhale:4, holdIn:0, exhale:8, holdOut:0, cycle:12,\n" +
+                "    howto:'Inhale through the nose for 4. On the exhale, close the lips and produce a low steady hum for the full 8 counts. Optionally place thumbs gently on the ears and fingers over the eyes. Feel the vibration in the skull and chest.',\n" +
+                "    effect:'Humming dramatically increases nasal nitric oxide compared to silent exhalation (Weitzberg & Lundberg, 2002), improving oxygen delivery. The vibration stimulates the vagus nerve via the larynx, shifting the nervous system toward parasympathetic calm and improving HRV in small studies.',\n" +
+                "    use:'Anxiety, insomnia, racing mind, before meditation. Can be done quietly in public.' },\n" +
+                "  { name:'Tummo', ratio:'2\\u00b70\\u00b71', inhale:2, holdIn:0, exhale:1, holdOut:0, cycle:3,\n" +
+                "    howto:'Sit in meditation posture. Take deep belly inhales (2 counts) and sharp complete exhales (1 count) continuously for ~30 cycles. Pair with visualization of heat at the navel rising up the centerline. Then exhale fully, hold empty briefly, apply a light abdominal lock, and rest.',\n" +
+                "    effect:'Combines forceful diaphragmatic rhythm with visualization to increase heat output and nervous system activation. Research on expert practitioners documents meaningful peripheral temperature increases during tummo practice.',\n" +
+                "    use:'Cold exposure, morning activation, energy cultivation, pre-meditation. Traditional practice is taught under guidance.' },\n" +
+                "  { name:'Buteyko', ratio:'3\\u00b70\\u00b73', inhale:3, holdIn:0, exhale:3, holdOut:0, cycle:6,\n" +
+                "    howto:'Close the mouth. Breathe in through the nose for 3 - deliberately less than feels natural - keeping the breath small and quiet. Out through the nose for 3. Maintain for 5-10 minutes, accepting mild air hunger.',\n" +
+                "    effect:'Trains tolerance to slightly higher CO2 and reduces chronic over-breathing. This can improve oxygen delivery via the Bohr effect and is associated with reduced asthma medication use and improved sleep in trials.',\n" +
+                "    use:'Asthma, chronic anxiety, mouth-breathing habit, sleep baseline. Best learned with an instructor.' },\n" +
+                "  { name:'Pas-i-Anfas', ratio:'4\\u00b70\\u00b76', inhale:4, holdIn:0, exhale:6, holdOut:0, cycle:10,\n" +
+                "    howto:'Sit with eyes closed, attention at the heart. Inhale through the nose for 4 while silently sounding " + "\"" + "Allah" + "\"" + ". Exhale for 6 while silently sounding " + "\"" + "Hu" + "\"" + ". No pauses - one unbroken cycle. Repeat for 25 rounds.',\n" +
+                "    effect:'Combines extended exhale downregulation with continuous devotional attention. Functions like coherence breathing but centered in felt heart awareness and uninterrupted recognition of each breath.',\n" +
+                "    use:'Heart-centered meditation, grief, presence practice, pre-prayer.' },\n" +
+                "  { name:'Taixi (Embryonic)', ratio:'2\\u00b70\\u00b74', inhale:2, holdIn:0, exhale:4, holdOut:0, cycle:6,\n" +
+                "    howto:'Sit in deep stillness. Breathe very slowly and lightly through the nose (2 in, 4 out), but prioritize subtlety: the breath is so soft a feather under the nose would not move. Let attention settle in the lower abdomen.',\n" +
+                "    effect:'Deep parasympathetic calming as respiratory rate drops and the sense of " + "\"" + "breathing being done" + "\"" + " can recede. Traditional Taoist training treats this as a destination of mature stillness practice rather than a forced technique.',\n" +
+                "    use:'Advanced stillness practice, before sleep. Not a beginner technique.' },\n" +
+                "  { name:'Bhastrika (Bellows)', ratio:'1\\u00b70\\u00b71', inhale:1, holdIn:0, exhale:1, holdOut:0, cycle:2,\n" +
+                "    howto:'Sit tall. Inhale forcefully and fully through the nose for 1 count, expanding the chest. Exhale forcefully for 1 count, driving the belly in. Both phases are active and equal. Do 20 rounds, then rest. Repeat up to 3 rounds with breaks.',\n" +
+                "    effect:'Rapidly increases ventilation and heat, strongly stimulates the nervous system, and is described in Hatha texts as a fire-starting practice used to clear and energize before deeper pranayama.',\n" +
+                "    use:'High-energy activation, cold exposure, before intense training. Avoid in pregnancy, hypertension, or heart conditions.' },\n" +
+                "  { name:'Kumbhaka', ratio:'6\\u00b76\\u00b76\\u00b76', inhale:6, holdIn:6, exhale:6, holdOut:6, cycle:24,\n" +
+                "    howto:'Inhale for 6. Hold full for 6. Exhale for 6. Hold empty for 6. Begin slowly and never strain; build gradually over weeks and months.',\n" +
+                "    effect:'Retention is a core engine of pranayama. Full and empty holds can produce profound stillness and autonomic reset when done comfortably and progressively.',\n" +
+                "    use:'Advanced pranayama and meditation preparation. Not for beginners - build stability first.' },\n" +
+                "\n];\n\nfunction techColor"
+            );
+
+            // Restore full detail text (especially alternate nostril).
+            appJs = appJs
+              .replace(
+                /\{ name:'Nadi Shodhana'[\s\S]*?\},/m,
+                "{ name:'Nadi Shodhana', ratio:'4\u00b716\u00b78', inhale:4, holdIn:16, exhale:8, holdOut:0, cycle:28,\n" +
+                  "  howto:'Sit with right hand in Vishnu mudra (thumb over right nostril, ring finger over left). Close the right nostril, exhale fully through the left. Inhale left for 4. Close both, hold for 16. Release right, exhale for 8. Inhale right for 4. Close both, hold for 16. Release left, exhale for 8. That is one round. Begin with 1:2 ratio (no hold) and work toward the classical 1:4:2 only under guidance.',\n" +
+                  "  effect:'Balances activity between the left and right hemispheres and the sympathetic/parasympathetic branches of the nervous system. The right nostril tends to activate sympathetic tone, the left nostril tends to activate parasympathetic tone, and alternating them creates equilibrium. Clinical studies show reductions in blood pressure, heart rate, and cortisol with regular practice. Purifies the nadis (subtle channels) and is treated as a prerequisite for deeper meditative states in the yogic tradition.',\n" +
+                  "  use:'Pre-meditation, pre-performance, nervous system reset. Not recommended when congested. Classical 1:4:2 only with qualified instruction.' },"
+              )
+              .replace(
+                /\{ name:'Kapalabhati'[\s\S]*?\},/m,
+                "{ name:'Kapalabhati', ratio:'0\u00b70\u00b71', inhale:0, holdIn:0, exhale:1, holdOut:0, cycle:1,\n" +
+                  "  howto:'Sit tall. Take a half-inhale and begin pumping: forceful sharp exhales through the nose driven by snapping the belly in, with passive automatic inhales between each pump. Start at one pump per second and build to two per second. Run for 30-60 pumps, then exhale fully and sit in stillness.',\n" +
+                  "  effect:'Floods the brain with oxygen, purges stale air from the lungs, stimulates the solar plexus, and builds heat. Studies show it improves pulmonary function, sharpens memory and reaction time, and can reduce sympathetic nervous system activity despite feeling activating. Classified in Hatha Yoga as a kriya (a cleansing act), not purely pranayama.',\n" +
+                  "  use:'Morning energy reset, creative blocks, mental fog, before meditation to clear the channel. Do not use with high blood pressure, heart conditions, or during pregnancy.' },"
+              )
+              .replace(
+                /\{ name:'Bhramari'[\s\S]*?\},/m,
+                "{ name:'Bhramari', ratio:'4\u00b70\u00b78', inhale:4, holdIn:0, exhale:8, holdOut:0, cycle:12,\n" +
+                  "  howto:'Inhale through the nose for 4. On the exhale, close the lips, place thumbs gently on the ears and fingers over the eyes (or leave hands in lap), and produce a low steady hum for the full 8 counts until the breath is gone. Feel the vibration in the skull and chest.',\n" +
+                  "  effect:'Humming produces a large increase in nasal nitric oxide compared to silent exhalation (Weitzberg & Lundberg, 2002), supporting vasodilation and oxygen delivery. The vibration stimulates the vagus nerve via the larynx, shifting the system toward parasympathetic dominance. HRV can increase to levels comparable with structured slow breathing in small studies.',\n" +
+                  "  use:'Anxiety, insomnia, racing mind, before meditation. Can be done silently in public. Often recommended before sleep.' },"
+              )
+              .replace(
+                /\{ name:'Tummo'[\s\S]*?\},/m,
+                "{ name:'Tummo', ratio:'2\u00b70\u00b71', inhale:2, holdIn:0, exhale:1, holdOut:0, cycle:3,\n" +
+                  "  howto:'Sit in meditation posture. Take deep belly inhales (2 counts) and sharp, complete exhales (1 count) in a continuous rhythm with no pause, roughly 30 cycles. Visualize a flame growing at the navel and rising up the central channel with each inhale. Then exhale fully, hold empty, apply a light abdominal lock, and hold the visualization of heat spreading through the body. Release and return to normal breath.',\n" +
+                  "  effect:'Documented in lab settings: expert practitioners can raise peripheral temperature markedly during tummo. The forceful diaphragmatic rhythm combined with visualization increases metabolic heat output and activates the central nervous system. Related to Wim Hof but slower, more intentional, and traditionally inseparable from visualization.',\n" +
+                  "  use:'Cold exposure, energy cultivation, morning activation, pre-meditation. Traditionally requires guidance; use simplified versions responsibly.' },"
+              )
+              .replace(
+                /\{ name:'Buteyko'[\s\S]*?\},/m,
+                "{ name:'Buteyko', ratio:'3\u00b70\u00b73', inhale:3, holdIn:0, exhale:3, holdOut:0, cycle:6,\n" +
+                  "  howto:'Close the mouth. Breathe in through the nose for 3, but deliberately less than feels natural, keeping the breath small and quiet. Out through the nose for 3. Maintain for 5-10 minutes, accepting a mild feeling of air hunger. The fine hairs at the nostrils should barely move.',\n" +
+                  "  effect:'The Bohr effect: CO2 helps oxygen unload from hemoglobin. Many people chronically over-breathe and strip CO2, paradoxically reducing tissue oxygen delivery. Buteyko allows CO2 to build slightly and trains respiratory-center sensitivity. Trials show reduced asthma medication use and improved sleep in some populations.',\n" +
+                  "  use:'Asthma, chronic anxiety, mouth breathing habit, sleep baseline. A lifestyle retraining as much as a technique; best learned with qualified instruction.' },"
+              )
+              .replace(
+                /\{ name:'Pas-i-Anfas'[\s\S]*?\},/m,
+                "{ name:'Pas-i-Anfas', ratio:'4\u00b70\u00b76', inhale:4, holdIn:0, exhale:6, holdOut:0, cycle:10,\n" +
+                  "  howto:'Sit with eyes closed, attention placed at the heart. Inhale through the nose for 4 while silently sounding \"Allah\" and sensing light entering the chest. Exhale through the nose for 6 while silently sounding \"Hu\" and feeling the resonance strike the heart. No pause anywhere; the breath flows continuously. Repeat for 25 rounds.',\n" +
+                  "  effect:'Combines extended-exhale downregulation with continuous devotional attention at the heart. Like coherence breathing, but the center of gravity is the felt cardiac field and guarding each breath as a recognition event.',\n" +
+                  "  use:'Heart-centered meditation, pre-prayer, grief, opening to presence. Use when you want the breath to be devotional practice, not just physiology.' },"
+              )
+              .replace(
+                /\{ name:'Taixi \(Embryonic\)'[\s\S]*?\},/m,
+                "{ name:'Taixi (Embryonic)', ratio:'2\u00b70\u00b74', inhale:2, holdIn:0, exhale:4, holdOut:0, cycle:6,\n" +
+                  "  howto:'Sit in deep stillness. Begin with very slow, very light nasal breathing (2 in, 4 out). The primary instruction is subtlety: make the breath so soft a feather under the nose does not move. Shift attention toward the lower abdomen. As practice deepens, coarser lung breathing can fade and a subtle interior movement below the navel can take its place. Do not force it.',\n" +
+                  "  effect:'A destination practice: controlled technique dissolves into observation. Physiologically it drives strong parasympathetic calming as respiratory rate drops and the sense of a separate self doing the breathing can recede.',\n" +
+                  "  use:'Advanced meditation, deep stillness practice, before sleep. Not a beginner technique; build stability first.' },"
+              )
+              .replace(
+                /\{ name:'Bhastrika \(Bellows\)'[\s\S]*?\},/m,
+                "{ name:'Bhastrika (Bellows)', ratio:'1\u00b70\u00b71', inhale:1, holdIn:0, exhale:1, holdOut:0, cycle:2,\n" +
+                  "  howto:'Sit tall. Inhale forcefully and fully through the nose for 1 count, expanding the chest completely. Exhale forcefully and fully through the nose for 1 count, driving the belly in. Unlike Kapalabhati where only exhale is active, both inhale and exhale are powerful and equal. Run ~20 rounds, then rest. Repeat for up to 3 rounds with breaks.',\n" +
+                  "  effect:'Bellows breath rapidly increases ventilation and heat and strongly stimulates the nervous system. Traditional Hatha texts describe it as a fire-starting practice used to clear and energize before deeper pranayama.',\n" +
+                  "  use:'High-energy activation, cold exposure, before intense training. More powerful than Kapalabhati; avoid in pregnancy, hypertension, or heart conditions.' },"
+              )
+              .replace(
+                /\{ name:'Kumbhaka'[\s\S]*?\},/m,
+                "{ name:'Kumbhaka', ratio:'6\u00b76\u00b76\u00b76', inhale:6, holdIn:6, exhale:6, holdOut:6, cycle:24,\n" +
+                  "  howto:'Inhale through the nose for 6. Hold full for 6. Exhale slowly for 6. Hold empty for 6. Begin slowly; some traditions start with 4\u00b74\u00b74\u00b74 and extend the holds over months. Do not attempt classical 1:4:2 ratios without preparation.',\n" +
+                  "  effect:'The holds are the engine of pranayama. Full hold (antara) can suspend the system into stillness; empty hold (bahya) can produce a deep autonomic reset. Over time, practice aims toward spontaneous cessation rather than forcing.',\n" +
+                  "  use:'Advanced pranayama, before or within meditation, energy cultivation. Not for beginners; build stability first.' },"
+              );
+
+            // Replace the short/medium/long buckets with a single grid ordered by inhale length.
+            appJs = appJs.replace(
+              /\/\/ \u2500\u2500 BUILD LIST[\s\S]*?\n\}\);\n\n/m,
+              "// \u2500\u2500 BUILD LIST \u2500\u2500\n" +
+                "const grid=document.getElementById('col-grid');\n" +
+                "grid.innerHTML='';\n" +
+                "TECHNIQUES\n" +
+                "  .map((tech,idx)=>({tech,idx}))\n" +
+                "  .sort((a,b)=> (a.tech.inhale-b.tech.inhale) || (a.tech.cycle-b.tech.cycle) || a.tech.name.localeCompare(b.tech.name))\n" +
+                "  .forEach(({tech,idx})=>{\n" +
+                "    const[r,g,b]=techColor(tech);\n" +
+                "    const card=document.createElement('div');\n" +
+                "    card.className='tech-card';\n" +
+                "    card.innerHTML=`<div class=\"card-dot\" style=\"background:rgb(${r},${g},${b})\"></div><span class=\"card-name\">${tech.name}</span><span class=\"card-ratio\">${tech.ratio}</span>`;\n" +
+                "    card.addEventListener('click',()=>setFocus(idx));\n" +
+                "    grid.appendChild(card);\n" +
+                "  });\n\n"
+            );
+
+            // Color scheme: cohesive warm->cool spectrum with per-tech separation.
+            appJs = appJs
+              .replace(
+                /function techColor\(inhale\)\{[\s\S]*?\n\}/m,
+                "function techColor(techOrInhale){\n" +
+                  "  const tech=(typeof techOrInhale==='object' && techOrInhale)?techOrInhale:null;\n" +
+                  "  const inhale=(typeof techOrInhale==='number')?techOrInhale:(tech?tech.inhale:4);\n" +
+                  "  const exhale=tech&&typeof tech.exhale==='number'?tech.exhale:0;\n" +
+                  "  const holdIn=tech&&typeof tech.holdIn==='number'?tech.holdIn:0;\n" +
+                  "  const holdOut=tech&&typeof tech.holdOut==='number'?tech.holdOut:0;\n" +
+                  "  const name=tech&&tech.name?String(tech.name):String(inhale);\n" +
+                  "\n" +
+                  "  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}\n" +
+                  "  function lerp(a,b,t){return a+(b-a)*t;}\n" +
+                  "  function hashStr(s){\n" +
+                  "    let h=2166136261;\n" +
+                  "    for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}\n" +
+                  "    return h>>>0;\n" +
+                  "  }\n" +
+                  "  function hslToRgb(h,s,l){\n" +
+                  "    h=((h%360)+360)%360;\n" +
+                  "    const c=(1-Math.abs(2*l-1))*s;\n" +
+                  "    const x=c*(1-Math.abs(((h/60)%2)-1));\n" +
+                  "    const m=l-c/2;\n" +
+                  "    let r=0,g=0,b=0;\n" +
+                  "    if(h<60){r=c;g=x;b=0;}\n" +
+                  "    else if(h<120){r=x;g=c;b=0;}\n" +
+                  "    else if(h<180){r=0;g=c;b=x;}\n" +
+                  "    else if(h<240){r=0;g=x;b=c;}\n" +
+                  "    else if(h<300){r=x;g=0;b=c;}\n" +
+                  "    else {r=c;g=0;b=x;}\n" +
+                  "    return [\n" +
+                  "      Math.round((r+m)*255),\n" +
+                  "      Math.round((g+m)*255),\n" +
+                  "      Math.round((b+m)*255)\n" +
+                  "    ];\n" +
+                  "  }\n" +
+                  "\n" +
+                  "  function baseHue(i){\n" +
+                  "    const x=clamp(i,0,7);\n" +
+                  "    if(x<=1) return lerp(22,12,x/1);           // brown -> deep red\n" +
+                  "    if(x<=3) return lerp(12,28,(x-1)/2);       // red -> rust\n" +
+                  "    if(x<=4) return lerp(28,45,(x-3)/1);       // rust -> amber\n" +
+                  "    if(x<=5) return lerp(45,135,(x-4)/1);      // amber -> green\n" +
+                  "    if(x<=6) return lerp(135,220,(x-5)/1);     // green -> blue\n" +
+                  "    return lerp(220,285,(x-6)/1);              // blue -> purple\n" +
+                  "  }\n" +
+                  "\n" +
+                  "  const h0=baseHue(inhale);\n" +
+                  "  const seed=hashStr(name);\n" +
+                  "  const jitter=((seed%1000)/1000-0.5)*22;\n" +
+                  "  const sep=((exhale-inhale)*3 + (holdIn>0?7:0) + (holdOut>0?5:0));\n" +
+                  "  const h=h0 + jitter*0.55 + clamp(sep,-18,18)*0.35;\n" +
+                  "\n" +
+                  "  // Keep longest inhale firmly purple.\n" +
+                  "  const longLock = inhale >= 6.8;\n" +
+                  "  const hh = longLock ? 285 : h;\n" +
+                  "\n" +
+                  "  let s=0.56;\n" +
+                  "  let l=0.56;\n" +
+                  "  if(inhale<=1){ s=0.50; l=0.46; }\n" +
+                  "  if(inhale<=0){ s=0.48; l=0.42; }\n" +
+                  "  if(holdIn>=10){ s*=0.92; l*=0.95; }\n" +
+                  "\n" +
+                  "  return hslToRgb(hh,s,l);\n" +
+                  "}"
+              )
+              .replace(/color:techColor\(tech\.inhale\)/g, 'color:techColor(tech)');
+
+            // Audio: ensure exhale cue is clearly audible (notably for very fast techniques).
+            appJs = appJs
+              .replace(
+                /const sndExhale\s*=\s*\(\)\s*=>\s*playClick\([^;]*\);/,
+                "const sndExhale  =()=>{\n  const tech=(typeof focusIndex==='number'&&focusIndex>=0&&rings[focusIndex]&&rings[focusIndex].tech)?rings[focusIndex].tech:null;\n  const g=tech&&typeof tech.exhale==='number'&&tech.exhale<=1.2?0.44:0.30;\n  return playClick(340,g,0.14);\n};"
+              )
+              .replace(
+                /const sndHoldIn\s*=\s*\(\)\s*=>\s*playClick\([^;]*\);/,
+                "const sndHoldIn  =()=>playClick(560,0.34,0.11);"
+              )
+              .replace(
+                /const sndHoldOut\s*=\s*\(\)\s*=>\s*playClick\([^;]*\);/,
+                "const sndHoldOut =()=>playClick(200,0.22,0.18);"
+              );
+
+            s.textContent = appJs;
+            document.body.appendChild(s);
+          }
+
+
+          // Add a white "outbreath" ring on release (no changes to timing/paths).
+          (function addReleaseOutbreathRing() {
+            if (typeof rings === 'undefined') return;
+            const wrap = document.getElementById('home-canvas-wrap');
+            if (!wrap) return;
+            try {
+              // Don't override our CSS centering (which sets position:absolute).
+              if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+            } catch (e) {}
+
+            const homeScreen = document.getElementById('home-screen');
+            if (!homeScreen) return;
+
+            const press = { active: false, pointerId: null, startMs: 0 };
+            const MAX_HOLD = 9;
+
+            function nowMs() {
+              return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            }
+
+            function isInteractiveTarget(el) {
+              if (!el || !el.closest) return false;
+              return (
+                el.closest('#nav-dot-wrap') ||
+                el.closest('#clear-btn') ||
+                el.closest('#info-popup') ||
+                el.closest('#focus-header')
+              );
+            }
+
+            // Overlay canvas for smooth, crisp animation (doesn't touch main canvas draw loop).
+            const baseCanvas = document.getElementById('home-canvas');
+            const overlay = document.createElement('canvas');
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.style.position = 'absolute';
+            overlay.style.left = '0';
+            overlay.style.top = '0';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.zIndex = '5';
+            wrap.appendChild(overlay);
+
+            const octx = overlay.getContext('2d');
+            let overlayW = 0;
+            let overlayH = 0;
+
+            function resizeOverlay() {
+              const rect = (baseCanvas && baseCanvas.getBoundingClientRect) ? baseCanvas.getBoundingClientRect() : wrap.getBoundingClientRect();
+              const dpr = (typeof DPR === 'number') ? DPR : (window.devicePixelRatio || 2);
+              overlayW = rect.width;
+              overlayH = rect.height;
+              overlay.width = Math.max(1, Math.round(rect.width * dpr));
+              overlay.height = Math.max(1, Math.round(rect.height * dpr));
+              overlay.style.width = rect.width + 'px';
+              overlay.style.height = rect.height + 'px';
+              octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            resizeOverlay();
+            window.addEventListener('resize', resizeOverlay);
+
+            const active = [];
+            let rafId = 0;
+
+            function clamp01(x) {
+              return x < 0 ? 0 : (x > 1 ? 1 : x);
+            }
+
+            function easeInFallback(t) {
+              return 1 - Math.pow(1 - t, 2.2);
+            }
+
+            function easeExFallback(t) {
+              return t * t * (3 - 2 * t);
+            }
+
+            function spawnRingFromHold(heldSec) {
+              if (typeof HOME_R !== 'number') return;
+              if (typeof MAX_R !== 'number') return;
+
+              const inhaleSec = Math.min(Math.max(heldSec, 0.05), MAX_HOLD);
+              const u = clamp01(inhaleSec / MAX_HOLD);
+              const ei = (typeof easeIn === 'function') ? easeIn : easeInFallback;
+              const ee = (typeof easeEx === 'function') ? easeEx : easeExFallback;
+
+              // Radius grows with hold duration; at 9s it reaches MAX_R.
+              const fromR = HOME_R + (MAX_R - HOME_R) * ei(u);
+              const dur = inhaleSec; // exhale duration equals inhale duration
+              const eps = 1e-3;
+              const rPrev = fromR - (fromR - HOME_R) * ee(1 - eps);
+              const vTail = (HOME_R - rPrev) / (dur * eps); // px/sec, negative
+
+              if (!(fromR > HOME_R)) return;
+
+              active.push({ startMs: nowMs(), fromR, dur, vTail, ee });
+              while (active.length > 3) active.shift();
+              if (!rafId) rafId = requestAnimationFrame(tick);
+            }
+
+            function tick(ts) {
+              rafId = 0;
+              if (!active.length) {
+                octx.clearRect(0, 0, overlayW, overlayH);
+                return;
+              }
+
+              const now = (typeof ts === 'number') ? ts : nowMs();
+              const cx = (typeof CX === 'number') ? CX : (overlayW / 2);
+              const cy = (typeof CY === 'number') ? CY : (overlayH / 2);
+
+              octx.clearRect(0, 0, overlayW, overlayH);
+              octx.strokeStyle = 'rgba(255,255,255,0.92)';
+              octx.lineWidth = 1.4;
+
+              for (let i = active.length - 1; i >= 0; i--) {
+                const a = active[i];
+                const elapsed = (now - a.startMs) / 1000;
+                let r;
+                if (elapsed <= a.dur) {
+                  const t = Math.min(elapsed / a.dur, 1);
+                  const k = a.ee(t);
+                  r = a.fromR - (a.fromR - HOME_R) * k;
+                } else {
+                  r = HOME_R + a.vTail * (elapsed - a.dur);
+                }
+
+                if (!(r > 0.35)) {
+                  active.splice(i, 1);
+                  continue;
+                }
+
+                octx.beginPath();
+                octx.arc(cx, cy, Math.min(r, MAX_R), 0, Math.PI * 2);
+                octx.stroke();
+              }
+
+              if (active.length) rafId = requestAnimationFrame(tick);
+              else octx.clearRect(0, 0, overlayW, overlayH);
+            }
+
+            function onPressStart(e) {
+              if (press.active) return;
+              if (typeof e.button === 'number' && e.button !== 0) return;
+              if (isInteractiveTarget(e.target)) return;
+              press.active = true;
+              press.pointerId = (e && typeof e.pointerId === 'number') ? e.pointerId : null;
+              press.startMs = nowMs();
+            }
+
+            function onPressEnd(e) {
+              if (!press.active) return;
+              if (press.pointerId !== null && e && typeof e.pointerId === 'number' && e.pointerId !== press.pointerId) return;
+
+              const heldSec = Math.max(0, (nowMs() - press.startMs) / 1000);
+              press.active = false;
+              press.pointerId = null;
+              press.startMs = 0;
+
+              // Only spawn if the app was actually holding (so list taps, nav taps, etc. don't spawn).
+              try {
+                if (typeof holding !== 'undefined' && holding) {
+                  spawnRingFromHold(heldSec);
+                }
+              } catch (err) {}
+            }
+
+            const usePointer = !!window.PointerEvent;
+            if (usePointer) {
+              homeScreen.addEventListener('pointerdown', onPressStart, true);
+              document.addEventListener('pointerup', onPressEnd, true);
+              document.addEventListener('pointercancel', onPressEnd, true);
+            }
+
+            // Also listen for mouse/touch for broader compatibility. press.active prevents double-firing.
+            homeScreen.addEventListener('mousedown', onPressStart, true);
+            homeScreen.addEventListener('touchstart', onPressStart, { capture: true, passive: true });
+            document.addEventListener('mouseup', onPressEnd, true);
+            document.addEventListener('touchend', onPressEnd, { capture: true, passive: true });
+            document.addEventListener('touchcancel', onPressEnd, { capture: true, passive: true });
+          })();
+        } catch (err) {
+          const el = document.getElementById('boot');
+          if (el) el.textContent = 'Load error';
+          console.error(err);
+        }
+      })();
+    </script>
+  </body>
+</html>

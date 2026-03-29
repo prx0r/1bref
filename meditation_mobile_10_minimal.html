@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mindfulness of Breathing & Four Elements Meditation — Minimal Mobile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,650&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" />
+  <style>
+:root{
+  --bg:#07070e;
+  --panel:rgba(10,10,20,0.97);
+  --ink:rgba(255,255,255,0.78);
+  --muted:rgba(255,255,255,0.42);
+  --faint:rgba(255,255,255,0.18);
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.14);
+  --accent:rgba(255,255,255,0.65);
+  --accent-soft:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg)}
+body{
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+#app{
+  width:100%;max-width:none;min-height:100svh;min-height:100dvh;margin:0 auto;background:var(--bg);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  user-select:none;-webkit-user-select:none;
+}
+
+/* Bottom-right portal */
+#lattyPortal{
+  position:absolute;
+  right:14px;
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  width:clamp(28px,6vw,56px);
+  height:auto;
+  opacity:0.22;
+  pointer-events:auto;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  filter:invert(1) drop-shadow(0 10px 24px rgba(0,0,0,0.55));
+  z-index:70;
+}
+
+#lattyPortal img{display:block;width:100%;height:auto}
+
+#lattyPortal:active{transform:scale(0.98)}
+.screen{display:none;flex:1;position:relative}
+.screen.active{display:flex}
+#home-screen{
+  flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+  touch-action:none;cursor:pointer;
+}
+#home-canvas-wrap{
+  width:min(86vw,320px);height:min(86vw,320px);margin-top:2px;position:relative;left:auto;top:auto;transform:none;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+canvas{display:block;width:100%;height:100%}
+#center-readout{display:none !important}
+#center-readout{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;
+}
+#count-prev,#count-next{
+  position:absolute;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:-.04em;color:rgba(255,255,255,.12);font-weight:540;
+}
+#count-prev{top:70px}
+#count-next{bottom:70px}
+#count-main{font-size:72px;line-height:.9;letter-spacing:-.08em;font-weight:700;color:rgba(255,255,255,0.72)}
+#count-sub{margin-top:6px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,0.22)}
+#count-progress{margin-top:6px;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,0.38)}
+
+#bottom-zone{margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+
+.flex-spacer{flex:1}
+
+#tempo-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.tempo-btn{
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.02);
+  color:rgba(255,255,255,0.55);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.tempo-btn.active{border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.72)}
+.tempo-btn:active{transform:scale(0.98)}
+
+#full-instructions{
+  width:min(92vw, 860px);
+  color:rgba(255,255,255,0.34);
+  font-size:13px;
+  line-height:1.65;
+  letter-spacing:0.01em;
+  padding:14px 14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.02);
+  max-height:min(52vh, 520px);
+  overflow:auto;
+}
+
+.inst-aim{color:rgba(255,255,255,0.36);margin-bottom:10px}
+.inst-aim .k{color:var(--accent);letter-spacing:0.10em;text-transform:uppercase;font-size:11px}
+.inst-h{margin:16px 0 8px;color:rgba(255,255,255,0.26);letter-spacing:0.14em;font-size:10px}
+.inst-p{margin:0 0 8px}
+.inst-ref{margin-top:14px}
+.inst-tag{font-size:11px;letter-spacing:0.10em}
+.inst-tag.good{color:rgba(70,170,110,0.78)}
+.inst-tag.bad{color:rgba(210,80,80,0.78)}
+.inst-tag.adv{color:rgba(172,128,255,0.80)}
+
+#home-hint{display:none !important}
+
+/* Bottom dock */
+#dock{
+  position:fixed;
+  left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:60;
+  width:min(92vw, 560px);
+  display:grid;
+  grid-template-columns:44px 1fr 44px 84px;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  box-shadow:0 18px 45px rgba(0,0,0,0.32);
+  backdrop-filter:blur(12px);
+  touch-action:manipulation;
+}
+.dock-btn{
+  height:36px;
+  min-width:44px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.72);
+  cursor:pointer;
+  padding:0 10px;
+  font-size:14px;
+  line-height:36px;
+}
+.dock-btn:disabled{opacity:0.35;cursor:default}
+.dock-mid{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:36px;
+  width:100%;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.52);
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.dock-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.55);box-shadow:0 0 0 6px rgba(255,255,255,0.06)}
+
+#dock-scrim{
+  position:fixed;
+  inset:0;
+  z-index:55;
+  background:rgba(0,0,0,0.25);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.18s ease;
+}
+#dock-scrim.open{opacity:1;pointer-events:auto}
+
+#dock-picker{
+  position:fixed;
+  left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom) + 58px);
+  transform:translateX(-50%) translateY(10px);
+  z-index:60;
+  width:min(92vw,560px);
+  max-height:min(60vh,520px);
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(12,12,22,0.92);
+  box-shadow:0 22px 60px rgba(0,0,0,0.42);
+  backdrop-filter:blur(14px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.18s ease, transform 0.18s ease;
+}
+#dock-picker.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.picker-head .k{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.36)}
+.picker-head .h{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22)}
+.picker-item{width:100%;display:block;text-align:left;padding:12px;border:0;background:transparent;color:inherit;cursor:pointer}
+.picker-item:hover{background:rgba(255,255,255,0.04)}
+.picker-row{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:start}
+.picker-k{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.28)}
+.picker-title{font-size:14px;line-height:1.25;color:rgba(255,255,255,0.72)}
+.picker-sub{margin-top:4px;font-size:12px;line-height:1.5;color:rgba(255,255,255,0.36)}
+#meditation-strip{
+  display:flex;align-items:center;gap:8px;max-width:100%;padding:8px 12px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);
+}
+#meditation-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.45);box-shadow:0 0 0 6px rgba(255,255,255,0.06);flex-shrink:0}
+#meditation-label{font-size:11px;line-height:1.2;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72vw}
+#home-hint{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,0.18)}
+#nav-dot-wrap{padding-top:2px;display:flex;justify-content:center;width:100%}
+#nav-dot,#back-btn{
+  width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
+}
+#nav-dot:hover,#back-btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.38);transform:scale(1.04)}
+
+#info-scrim{
+  position:fixed;inset:0;z-index:72;
+  background:rgba(0,0,0,0.42);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease;
+  backdrop-filter:blur(2px);
+}
+#info-scrim.open{opacity:1;pointer-events:auto}
+
+#info-popup{
+  position:fixed;left:0;right:0;bottom:0;z-index:75;transform:translateY(104%);
+  transition:transform .34s cubic-bezier(.32,.72,0,1);
+  background:var(--panel);border-top:1px solid var(--line-strong);border-radius:20px 20px 0 0;
+  padding:20px 18px calc(30px + env(safe-area-inset-bottom));
+  max-height:calc(100svh - 22px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  box-shadow:0 -18px 40px rgba(0,0,0,.34);
+}
+#info-popup.open{transform:translateY(0)}
+#info-drag-bar{width:34px;height:4px;border-radius:99px;background:rgba(255,255,255,.12);margin:0 auto 16px}
+#info-stage{font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:rgba(255,255,255,0.44);margin-bottom:8px}
+#info-title{font-size:28px;line-height:.98;letter-spacing:-.05em;font-weight:670;margin-bottom:10px;color:rgba(255,255,255,0.78)}
+#info-subtitle{font-size:13px;line-height:1.55;color:rgba(255,255,255,0.46);margin-bottom:16px}
+.info-block{padding:12px 0;border-top:1px solid var(--line)}
+.info-block:first-of-type{border-top:none;padding-top:0}
+.info-heading{font-size:9px;letter-spacing:.20em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:6px}
+.info-body{font-size:13px;line-height:1.62;color:rgba(255,255,255,.56);overflow-wrap:anywhere}
+.info-body ul{padding-left:18px}
+.info-body li+li{margin-top:8px}
+#info-refs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.info-chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:11px;line-height:1.1;border:1px solid rgba(255,255,255,0.08)}
+.info-chip:visited{color:rgba(255,255,255,0.5)}
+.info-chip:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.08)}
+
+#list-screen{flex-direction:column;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+#list-header{
+  display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;position:sticky;top:0;
+  background:linear-gradient(180deg, rgba(7,7,14,.96), rgba(7,7,14,.86));backdrop-filter:blur(10px);z-index:4;
+}
+#list-header span{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.22)}
+#list-wrap{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+.group{border-top:1px solid var(--line);padding-top:10px}
+.group-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:10px}
+.card-list{display:flex;flex-direction:column;gap:8px}
+.tech-card{
+  padding:12px 12px 11px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03);
+  display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:border-color .2s, background .2s, transform .2s;
+}
+.tech-card:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.05)}
+.tech-card.selected{border-color:var(--accent);background:var(--accent-soft)}
+.card-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.card-copy{min-width:0}
+.card-stage{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.24);margin-bottom:3px}
+.card-name{font-size:15px;line-height:1.2;font-weight:610;color:rgba(255,255,255,.72);margin-bottom:4px}
+.card-subtitle{font-size:12px;line-height:1.45;color:rgba(255,255,255,.38)}
+
+.hidden{display:none !important}
+
+/* Accent serif moments */
+.dock-mid,
+#info-title,
+.card-name{
+  font-family:"Fraunces",serif;
+  font-optical-sizing:auto;
+  letter-spacing:-0.01em;
+}
+
+/* Allow selection inside long notes */
+#full-instructions,
+#info-popup{ user-select:text; -webkit-user-select:text; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="home-screen" class="screen active">
+    <div id="home-canvas-wrap">
+      <canvas id="home-canvas" width="320" height="320"></canvas>
+      <div id="center-readout">
+        <div id="count-prev"></div>
+        <div id="count-main">1</div>
+        <div id="count-next"></div>
+        <div id="count-sub">breaths</div>
+        <div id="count-progress"></div>
+      </div>
+    </div>
+
+    <div id="bottom-zone">
+      <div id="tempo-row" aria-label="Breath count">
+        <button class="tempo-btn" data-count="10">10</button>
+        <button class="tempo-btn" data-count="20">20</button>
+        <button class="tempo-btn" data-count="50">50</button>
+        <button class="tempo-btn" data-count="100">100</button>
+      </div>
+      <div id="full-instructions"></div>
+      <div id="home-hint"></div>
+    </div>
+
+    <div class="flex-spacer"></div>
+
+    <div id="dock" aria-label="Meditation navigation">
+      <button class="dock-btn" id="dock-prev" type="button" aria-label="Previous">&lt;</button>
+      <button class="dock-mid" id="dock-mid" type="button" aria-label="Choose meditation" aria-haspopup="dialog" aria-expanded="false">
+        <span class="dock-dot"></span>
+        <span id="dock-title">1. Anapanasati</span>
+      </button>
+      <button class="dock-btn" id="dock-next" type="button" aria-label="Next">&gt;</button>
+      <button class="dock-btn" id="dock-notes" type="button" aria-label="Notes">Notes</button>
+    </div>
+    <div id="dock-scrim"></div>
+    <div id="dock-picker" role="dialog" aria-label="Meditations"></div>
+
+    <div id="info-scrim" aria-hidden="true"></div>
+    <div id="info-popup" role="dialog" aria-label="Meditation notes">
+      <div id="info-drag-bar"></div>
+      <div id="info-stage"></div>
+      <div id="info-title"></div>
+      <div id="info-subtitle"></div>
+      <div class="info-block"><div class="info-heading">Deep Dive (Study Edition)</div><div class="info-body" id="info-notes"></div></div>
+      <div class="info-block"><div class="info-heading">If You Get Stuck</div><div class="info-body" id="info-stuck"></div></div>
+      <div class="info-block"><div class="info-heading">Warnings + Next Layer</div><div class="info-body" id="info-warn"></div></div>
+      <div class="info-block"><div class="info-heading">Optional References</div><div class="info-body" id="info-refs"></div></div>
+    </div>
+  </div>
+
+  <div id="list-screen" class="screen">
+    <div id="list-header"><span>Meditations</span><div id="back-btn"></div></div>
+    <div id="list-wrap">
+      <div class="group"><div class="group-title">Breath</div><div class="card-list" id="group-breath"></div></div>
+      <div class="group"><div class="group-title">Elements</div><div class="card-list" id="group-elements"></div></div>
+      <div class="group"><div class="group-title">Seeing</div><div class="card-list" id="group-seeing"></div></div>
+    </div>
+  </div>
+
+  <a id="lattyPortal" href="bubble_home_merge_10.html" aria-label="Open bubble homepage">
+    <img src="latty.png" alt="" decoding="async" loading="lazy" />
+  </a>
+</div>
+
+<script>
+const BREATH_COUNTS = [10,20,50,100];
+const MEDITATIONS = [
+  {
+    stage:'1',
+    name:'Anapanasati',
+    group:'breath',
+    accent:'#ef4444',
+    subtitle:'Build one small, exact breath object at the nostrils or upper lip. Counting is scaffolding, not the practice itself.',
+    howto:[
+      'Sit upright but not rigid. Let the jaw, eyes, shoulders, and belly stop fidgeting.',
+      'Pick one exact touch point: nostril rim, below the nostrils, or upper lip. Do not keep changing it mid-sit.',
+      'Know only the touch of the in-breath and out-breath there. Do not follow the breath into the chest or abdomen.',
+      'If attention keeps slipping, count after each full breath cycle from 1 to 8 and restart when lost.'
+    ],
+    good:[
+      'The target zone gets smaller and clearer.',
+      'Breathing stays natural.',
+      'Counting helps attention but does not drown the breath.'
+    ],
+    bad:[
+      'Chasing the breath through the body.',
+      'Controlling the breathing to make it feel stronger.',
+      'Adding lots of inner talk or commentary.'
+    ],
+    advance:'Advance when you can stay with the contact point for a decent stretch and counting starts feeling optional.',
+    deepen:'Then move to long and short breath recognition without losing the same touch point.',
+    links:['Part 1 · Main breath instructions','Balancing effort and steadiness']
+  },
+  {
+    stage:'2',
+    name:'Long / short',
+    group:'breath',
+    accent:'#f97316',
+    subtitle:'Shift from counting to direct knowing of the breath’s duration, while keeping the same tiny contact point.',
+    howto:[
+      'Drop the count when the mind can already stay near the breath.',
+      'Use the same touch point as Meditation 1.',
+      'Know whether each breath is long or short by duration, not size.',
+      'Keep the recognition light. You are noticing duration, not narrating every breath.'
+    ],
+    good:[
+      'Long or short is known almost in the background while contact stays clear.',
+      'Breath length changes on its own and you simply know it.'
+    ],
+    bad:[
+      'Secretly lengthening or shortening the breath to make the exercise easier.',
+      'Over-labelling until the commentary is louder than the object.'
+    ],
+    advance:'Advance when duration is known cleanly and you do not need to steer the breathing.',
+    deepen:'Then move to knowing the whole breath and letting it calm without interference.',
+    links:['Part 1 · Long / short breath section']
+  },
+  {
+    stage:'3',
+    name:'Whole breath',
+    group:'breath',
+    accent:'#fbbf24',
+    subtitle:'Know each whole in-breath and out-breath continuously. Let the breath become subtle without panicking or meddling.',
+    howto:[
+      'Stay at the same touch point but know each whole in-breath from beginning to end, then each whole out-breath from beginning to end.',
+      'Make a gentle decision that the breath may calm. Then stop interfering.',
+      'When the breath becomes fine, stay where it was last clearly known. Wait there. Do not gasp or deepen it to reassure yourself.',
+      'If signs or images begin to appear, do not jump to them too early. Keep grounding in the breath.'
+    ],
+    good:[
+      'The breath gets softer while the mind gets steadier and more patient.',
+      'Subtlety no longer feels threatening.'
+    ],
+    bad:[
+      'Forcing the breath to be obvious again.',
+      'Getting excited by early signs or treating subtle breath as danger.'
+    ],
+    advance:'Advance when subtle breathing no longer throws you off the object.',
+    deepen:'Then begin body-based element work with the steadier mind you have built.',
+    links:['Subtle breath guidance','Nimitta caution','Balancing the five faculties']
+  },
+  {
+    stage:'4',
+    name:'Air (pushing)',
+    group:'elements',
+    accent:'#22c55e',
+    subtitle:'Shift from one breath point to the bodily quality of pushing, pressure, movement, or thrust.',
+    howto:[
+      'Begin where pushing is easiest: chest movement, abdomen movement, pulse beat, or the pressure in the head with breathing.',
+      'Stay with one spot until pushing is unmistakable.',
+      'Move methodically to nearby regions and look again: head, neck, trunk, arms, legs, feet.',
+      'Keep asking: is there actual pressure or movement here, or am I just naming a body part from memory?'
+    ],
+    good:[
+      'Pushing can be rediscovered in more places without strain.',
+      'You rely on tactile evidence rather than vague “energy” ideas.'
+    ],
+    bad:[
+      'Doing a vague body sweep and calling it insight.',
+      'Demanding something exotic instead of plain tactile movement.'
+    ],
+    advance:'Advance when pushing can be found through much of the body even when it is subtle.',
+    deepen:'Then add the earth qualities one by one so the body becomes discriminated instead of lumped together.',
+    links:['Part 2 · Four-elements overview','Detailed 12-quality method']
+  },
+  {
+    stage:'5',
+    name:'Earth (tactile)',
+    group:'elements',
+    accent:'#06b6d4',
+    subtitle:'Build the earth-element through clear tactile qualities instead of a vague sense of “the body.”',
+    howto:[
+      'Hardness: lightly bite the teeth together, then relax and keep noticing the hardness that remains.',
+      'Roughness: use the tongue over the teeth edge or brush a hand over the skin, then search for the same quality elsewhere.',
+      'Heaviness: feel the weight of one hand on the other or the head tipping forward slightly, then extend that recognition through the body.',
+      'Cycle pushing → hardness → roughness → heaviness in an orderly scan.'
+    ],
+    good:[
+      'The qualities separate out instead of collapsing into one mushy body feeling.',
+      'You can run the sequence again with similar clarity.'
+    ],
+    bad:[
+      'Clenching muscles to manufacture hardness.',
+      'Turning the exercise into concept review instead of direct perception.'
+    ],
+    advance:'Advance when these first four qualities can be found through the body with confidence.',
+    deepen:'Then add the balancing opposites: supporting, softness, smoothness, and lightness.',
+    links:['Detailed earth-element method','Short four-elements grouping']
+  },
+  {
+    stage:'6',
+    name:'Balance (opposites)',
+    group:'elements',
+    accent:'#3b82f6',
+    subtitle:'Complete the easier tactile set and learn to correct excess by using opposite qualities.',
+    howto:[
+      'Supporting: feel the force that keeps the body upright after briefly slumping and straightening.',
+      'Softness: recognize it at the lip or tongue contact, then search elsewhere without collapsing posture.',
+      'Smoothness: use the lips or skin to identify the quality, then expand outward.',
+      'Lightness: feel it in a lightly wagged finger, then train body-wide recognition. Use opposites when the practice gets too hard, rough, heavy, or pressured.'
+    ],
+    good:[
+      'You can soften, lighten, or steady the practice instead of just forcing more effort.',
+      'The first eight qualities are becoming available across the body.'
+    ],
+    bad:[
+      'Treating supporting as tense bracing.',
+      'Trying to hold every quality at once until everything gets muddy.'
+    ],
+    advance:'Advance when the first eight qualities can be cycled clearly and used to rebalance strain.',
+    deepen:'Then finish the set with fire and water qualities.',
+    links:['Detailed balancing instructions','Seven factors of enlightenment']
+  },
+  {
+    stage:'7',
+    name:'Fire / water',
+    group:'elements',
+    accent:'#6366f1',
+    subtitle:'Complete the twelve qualities with heat, coldness, cohesion, and flowing. The last two are subtler and often inferential.',
+    howto:[
+      'Heat: start with obvious bodily warmth.',
+      'Coldness: begin with the coolness of the breath at the nostrils and extend the recognition.',
+      'Cohesion: recognize the body as held together; without this quality it would not hang together as a body.',
+      'Flowing: use saliva, blood flow, spreading warmth, or air moving into the lungs. When cohesion or flowing are vague, strengthen the earlier ten qualities first.'
+    ],
+    good:[
+      'You understand that not every quality is known in the same crude tactile way.',
+      'The whole twelve-quality set is becoming workable.'
+    ],
+    bad:[
+      'Inventing fantasy imagery to force cohesion or flowing.',
+      'Declaring failure because the last two are subtler than hardness.'
+    ],
+    advance:'Advance when the whole set can be revisited without getting lost in a few favourite sensations.',
+    deepen:'Then regroup the twelve qualities into earth, water, fire, and air in one whole-body view.',
+    links:['12-quality instructions','Four-element grouping']
+  },
+  {
+    stage:'8',
+    name:'Four elements (whole)',
+    group:'elements',
+    accent:'#8b5cf6',
+    subtitle:'Regroup the twelve qualities into the four elements and hold the body in one cleaner overall view.',
+    howto:[
+      'Regroup the first six qualities as earth, the next two as water, the next two as fire, and the last two as air.',
+      'Take the whole body in one view rather than hopping around randomly.',
+      'Discern in order: earth → water → fire → air. Go neither too fast nor too slow.',
+      'Stay with actual qualities, not just the words “earth, water, fire, air.”'
+    ],
+    good:[
+      'The body is perceived less as a personal shape and more as a field of knowable qualities.',
+      'Repeated rounds can be done cleanly without losing clarity.'
+    ],
+    bad:[
+      'Speed-reciting the elements.',
+      'Dropping back into random body scanning every few seconds.'
+    ],
+    advance:'Advance when the four-element overview can be repeated smoothly and the body is less solid and personal in perception.',
+    deepen:'Then work carefully with light, transparency, and the first breakdown into kalāpas.',
+    links:['Ten ways of attention','Five faculties','Seven factors']
+  },
+  {
+    stage:'9',
+    name:'Light / transparency',
+    group:'seeing',
+    accent:'#a855f7',
+    subtitle:'Treat light and transparency as objects for further discernment, not as fireworks or attainment badges.',
+    howto:[
+      'If light or a white bodily form appears, keep discerning the four elements there rather than staring at the visual display.',
+      'If the form becomes transparent like glass or ice, continue element discernment there too.',
+      'When sparkling or emitted light stabilizes, use it as a platform for steadier concentration rather than a trophy.',
+      'Then look for space-element within the transparent form. This is where the body may break into small particles called rūpa kalāpas.'
+    ],
+    good:[
+      'Light makes you more precise, not more grandiose.',
+      'Transparent and opaque groupings can be distinguished without excitement taking over.'
+    ],
+    bad:[
+      'Forcing visual effects or treating lights as proof of enlightenment.',
+      'Thinking blankness or discontinuity must be Nibbāna.'
+    ],
+    advance:'Advance when you can return to this stage steadily and keep the analysis grounded in elements.',
+    deepen:'Then begin materiality discernment in a way anchored to what is directly observable.',
+    links:['Light to transparency sequence','Rūpa kalāpa analysis','Bhavaṅga caution']
+  },
+  {
+    stage:'10',
+    name:'Materiality (rupa)',
+    group:'seeing',
+    accent:'#ffffff',
+    subtitle:'Use theory to sharpen direct seeing, not to replace it with memorized taxonomy.',
+    howto:[
+      'Start with the claim that each rūpa kalāpa includes at least eight materialities: earth, water, fire, air, colour, odour, taste, and nutritive essence.',
+      'Distinguish transparent elements by what impinges on them: colour for the eye, touch for the body, sound for the ear, odour for the nose, taste for the tongue.',
+      'Work one base at a time. Do not start by memorizing all twenty-eight materialities as a giant pile of names.',
+      'If perception turns conceptual, step back to whole-body elements or transparent/opaque kalāpa work until direct seeing is alive again.'
+    ],
+    good:[
+      'Theory sharpens observation and observation keeps theory honest.',
+      'Links between body qualities, transparent elements, kalāpas, and materiality start making sense.'
+    ],
+    bad:[
+      'Opening the full taxonomies too early and replacing discernment with collection.',
+      'Thinking that seeing particles alone is enough.'
+    ],
+    advance:'This is already the edge of the condensed path. Advance by studying the deeper theory sections with actual observation as your anchor.',
+    deepen:'Use the transparent-elements and twenty-eight-materialities material only after the groundwork is real.',
+    links:['Transparent-elements materiality','Eye-base example','Twenty-eight materialities map','Final caution']
+  }
+];
+
+// Deep, non-duplicating notes pulled from the Interactive Study Edition.
+// Goal: the on-tap popup adds context, clarifications, and cautions beyond the always-visible instructions.
+const STUDY_DEEP_DIVE = [
+  {
+    notes:[
+      'Keep attention at the nostrils or upper lip. Do not follow the breath inside or outside the body; concentration is trained at the contact point.',
+      'In this system, mindfulness-of-breathing uses the breath as a concept object to build concentration. Do not start analyzing the elements in the breath or the three characteristics at this stage.',
+      'Counting is a stabilizer for weak concentration. The text recommends counting after each full breath cycle, keeping the count within 5-10 (often 8), and returning calmly when lost.',
+      'When stability is established (the text mentions sustaining it for a substantial stretch), move on to duration-knowing (long/short) rather than extending counting forever.',
+      'If nimitta begins to appear, do not switch attention to it immediately. Keep with the breath until the mind naturally fixes and the sign is stable.'
+    ],
+    stuck:[
+      'If the mind keeps sliding: shrink the object (smaller contact zone) and reintroduce counting temporarily.',
+      'If you are controlling the breathing to make it obvious: stop interfering and return to simple touch knowing at one place.'
+    ],
+    warn:[
+      'Do not "play" with nimitta (trying to change it). The text is blunt: manipulating it stalls progress and it often disappears.',
+      'Following the breath through the body is treated as a reliable way to fail at stabilizing concentration in this method.'
+    ],
+    refs:[
+      { label:'Breath practice (full)', href:'meditation_interactive_study_v4.html#breath-practice' },
+      { label:'Balance the five faculties', href:'meditation_interactive_study_v4.html#five-faculties' },
+      { label:'Balance the seven factors', href:'meditation_interactive_study_v4.html#seven-factors' }
+    ]
+  },
+  {
+    notes:[
+      '"Long" and "short" refer to time duration, not physical length. Decide for yourself what you will call long vs short.',
+      'Know duration lightly while staying at the same touch point. The guidance emphasizes recognition without turning it into narration.',
+      'Do not deliberately lengthen or shorten the breath to make the exercise easier; let the breathing be natural.',
+      'Nimitta may appear at this stage for some meditators; the handling instruction is the same: do not jump to it prematurely.'
+    ],
+    stuck:[
+      'If duration knowing becomes conceptual: return to simple "in/out" contact knowing for a while, then reintroduce long/short recognition softly.',
+      'If you notice subtle breath-control: relax effort and let the breath find its own rhythm.'
+    ],
+    warn:[
+      'Over-labelling can drown the object. The practice is duration-knowing, not building commentary.',
+      'The text frames progression as staged: if stability is already present, counting is dropped; if it is not, counting remains scaffolding.'
+    ],
+    refs:[
+      { label:'Breath practice (full)', href:'meditation_interactive_study_v4.html#breath-practice' }
+    ]
+  },
+  {
+    notes:[
+      '"Whole breath" is trained as continuity from beginning to end of each in-breath and out-breath while staying with the chosen contact area.',
+      'To calm the breath: decide to calm it, then do nothing else. The text explicitly warns that meddling to force calm breaks concentration.',
+      'When the breath becomes very subtle: keep awareness where it was last known and wait there. Do not gasp or deepen the breath to reassure yourself.',
+      'The original text gives a strong cognitive correction: you are breathing; the issue is mindfulness not yet sharp enough to catch subtlety.',
+      'Nimitta variety is normal (cotton, light, pearl, etc.). The practical instruction is consistent: do not manipulate; let steadiness mature.'
+    ],
+    stuck:[
+      'If subtle breath triggers panic: treat it as a training moment. Hold the last-known contact point and wait; avoid extra effort spikes.',
+      'If the mind "blanks out": use balancing (faculties / factors). Increase mindfulness and right effort rather than interpreting blankness as attainment.'
+    ],
+    warn:[
+      'Access concentration can include re-entering bhavaṅga-like blankness; a silent or inactive episode is not automatically Nibbāna.',
+      'Do not shift to nimitta the moment it appears; premature switching is a common reason it vanishes.'
+    ],
+    refs:[
+      { label:'Breath practice (full)', href:'meditation_interactive_study_v4.html#breath-practice' },
+      { label:'Balance the five faculties', href:'meditation_interactive_study_v4.html#five-faculties' },
+      { label:'Falling into bhavaṅga (warning)', href:'meditation_interactive_study_v4.html#falling-into-bhavanga' }
+    ]
+  },
+  {
+    notes:[
+      'Four-elements practice is introduced as bodily discernment through qualities, not metaphysics: what is hard/rough is earth, what is cohesive/flowing is water, what is warm/cool is fire, what is supporting/pushing is air.',
+      'Pushing is taught first because it is often easiest: breath pressure in the head, chest expansion, abdomen movement, pulse beat, or any clear movement.',
+      'The method is systematic: stabilize clarity in one place, then move to nearby regions. Repeat until pushing can be found wherever attention lands.',
+      'The text stresses repetition: the aim is trained recognition, not one impressive moment.'
+    ],
+    stuck:[
+      'If pushing in the head is unclear: use chest/abdomen movement, pulse beat, or another obvious movement and expand from there.',
+      'If scanning gets vague: slow down and demand tactile evidence (pressure/movement) rather than naming body parts.'
+    ],
+    warn:[
+      '"Energy sweeps" without clear tactile characteristics tend to slide back into concept. Keep it touch-based.',
+      'Do not rush to whole-body overview until the characteristic can be rediscovered reliably in many areas.'
+    ],
+    refs:[
+      { label:'Four-elements overview', href:'meditation_interactive_study_v4.html#four-elements-overview' }
+    ]
+  },
+  {
+    notes:[
+      'Hardness is trained first at the teeth: bite lightly, then relax and keep knowing hardness without adding tension. Then scan head-to-feet.',
+      'Alternate pushing and hardness repeatedly before adding the next quality; the text uses this alternation as a training lever.',
+      'Roughness is trained with tongue-over-teeth or brushing skin; once recognized locally, extend it systematically through the body.',
+      'Heaviness can be learned from hand-on-hand weight or slight head-bend; then extend it through the body in order.'
+    ],
+    stuck:[
+      'If roughness is hard to find: return to pushing and hardness and look again; the text suggests it may appear with them.',
+      'If you catch yourself manufacturing sensations: reset. The method asks for discernment, not forcing.'
+    ],
+    warn:[
+      'Avoid deliberate tensing to "make" hardness. That teaches tension, not perception.',
+      'Random hopping usually indicates clarity is slipping; systematic scanning is part of the concentration training.'
+    ],
+    refs:[
+      { label:'Four-elements overview', href:'meditation_interactive_study_v4.html#four-elements-overview' }
+    ]
+  },
+  {
+    notes:[
+      'Supporting is learned by contrast: briefly slump, then straighten. The force keeping the body upright, still, and erect is supporting.',
+      'If supporting is unclear, the source suggests pairing it with hardness to help recognition.',
+      'Balancing is built into the method: when one quality becomes excessive (hardness, heat, pushing commonly), attend to its opposite to restore balance.',
+      'Opposite pairs explicitly listed: hardness/softness, roughness/smoothness, heaviness/lightness, heat/coldness, supporting/pushing, flowing/cohesion.'
+    ],
+    stuck:[
+      'If practice becomes harsh or unbearable: shift attention to the opposite quality until the body-mind is workable again, then resume the sequence.',
+      'If supporting turns into bracing: soften effort, then find supporting as a steadying force rather than a clamp.'
+    ],
+    warn:[
+      'The goal is balanced elements because balance makes concentration easier; the opposites are not theory, they are practical correction.',
+      'Trying to hold all qualities simultaneously tends to produce muddiness; the text trains one-at-a-time clarity first.'
+    ],
+    refs:[
+      { label:'Four-elements overview', href:'meditation_interactive_study_v4.html#four-elements-overview' },
+      { label:'Balance the seven factors', href:'meditation_interactive_study_v4.html#seven-factors' }
+    ]
+  },
+  {
+    notes:[
+      'Heat is usually straightforward. Coldness is often easiest to recognize at the nostrils with the cool breath, then extend through the body.',
+      'The method calls out that the last two (flowing, cohesion) are typically known by inference based on the other ten tactile qualities, so they are taught last.',
+      'Cohesion is framed as "held-togetherness": skin/flesh/sinews keep the body from falling into pieces; blood is held in like water in a balloon; gravity-stuckness is also treated as cohesion.',
+      'If cohesion remains unclear, the text recommends emphasizing pushing and hardness until a rope-coils-like wrapped feeling appears, then discerning that as cohesion.',
+      'Flowing can be approached via saliva movement, blood flow, air into lungs, or warmth spreading; and can be supported by coldness/heat/pushing.'
+    ],
+    stuck:[
+      'If cohesion/flowing stay vague: strengthen the previous ten qualities repeatedly, then try again. The text expects these to come later.',
+      'If you demand a crude "liquid" sensation: drop that demand; the instruction is inferential recognition based on what the body is doing.'
+    ],
+    warn:[
+      'Do not invent imagery to force cohesion/flowing. When inference is required, it should be inference grounded in clear prior qualities.',
+      'If imbalance causes discomfort, use opposites (heat/cold, pushing/supporting, etc.) to rebalance before continuing.'
+    ],
+    refs:[
+      { label:'Four-elements overview', href:'meditation_interactive_study_v4.html#four-elements-overview' }
+    ]
+  },
+  {
+    notes:[
+      'After the twelve qualities are clear, regroup into four elements and discern in order: earth, water, fire, air.',
+      'Shift from part-by-part scanning to an overall view of the body. The text recommends the overview as if looking from behind the shoulders; above-the-head overview can create tension for some.',
+      'Key pacing rule: not too fast (clarity collapses) and not too slow (continuity breaks).',
+      'Go beyond the words "earth/water/fire/air" and stay with the actual qualities they represent.',
+      'You may temporarily drop unclear qualities only if you keep at least one characteristic for each element and do not create painful imbalance.'
+    ],
+    stuck:[
+      'If the overview becomes vague: briefly return to one-at-a-time qualities (or the first eight), restore clarity, then reopen the overview.',
+      'If you start mentally reciting instead of perceiving: slow down and re-anchor in a single clear tactile quality for each element.'
+    ],
+    warn:[
+      'Staying at concept (just labels) blocks the analytic work later. This stage is training direct perception of elements, not memorizing names.',
+      'The text treats the ten ways of attention as practical: order, pacing, distraction-guarding, and concept-transcending are part of the method.'
+    ],
+    refs:[
+      { label:'Four-elements overview', href:'meditation_interactive_study_v4.html#four-elements-overview' },
+      { label:'Detailed method (full)', href:'meditation_interactive_study_v4.html#detailed-method' }
+    ]
+  },
+  {
+    notes:[
+      'Kalāpas are introduced as the breakdown of apparent bodily solidity into analyzable material groups. Transparent kalāpas contain one of the five transparent-elements; all others are opaque.',
+      'If kalāpas arise/pass too fast: the instruction is to ignore arising/passing on purpose and concentrate on discerning the four elements in an individual kalāpa.',
+      'Training trick given in the text: alternate each element as whole-body-at-once, then single-kalāpa, element by element, until single-kalāpa discernment becomes possible.',
+      'Seeing "small particles with size" can still be concept if compactness remains. The text insists analysis must break compactness (continuity, grouping, function) to reach ultimate materiality.',
+      'Light is treated later as the brilliance of color materiality within kalāpas (especially those produced by consciousness and temperature), so visual brightness is not automatically insight.'
+    ],
+    stuck:[
+      'If you cannot hold a single kalāpa: use the alternating method (whole body <-> single kalāpa) for earth, then water, then fire, then air.',
+      'If you get pulled into fascination with visuals: return to element discernment inside the light/clarity rather than staring at display.'
+    ],
+    warn:[
+      'Trying to do vipassanā on un-analyzed kalāpa "lumps" is explicitly described as vipassanā on concepts.',
+      'Do not mistake blankness or inactivity for attainment; pair this work with the bhavaṅga warning if you hit "I knew nothing" episodes.'
+    ],
+    refs:[
+      { label:'How to analyse rūpa kalāpas', href:'meditation_interactive_study_v4.html#rupa-kalapas' },
+      { label:'Three kinds of compactness', href:'meditation_interactive_study_v4.html#three-compactness' },
+      { label:'Falling into bhavaṅga (warning)', href:'meditation_interactive_study_v4.html#falling-into-bhavanga' }
+    ]
+  },
+  {
+    notes:[
+      'Baseline analysis target in each kalāpa: at least eight materialities are present (earth, water, fire, air, color, odor, taste, nutritive-essence).',
+      'Transparent-elements (pasāda-rūpa) are analyzed by what object impinges: eye pasāda by color, body pasāda by touch, ear by sound, nose by odor, tongue by taste.',
+      'The 28 materialities section functions as a reference atlas: it lays out great elements, transparent-elements, objective fields, life faculty, heart base, nutriment, space, intimation, alteration, and characteristic materiality.',
+      'The text distinguishes materiality suitable for Vipassanā (produced materiality with natural characteristics) from other "not-real" categories; the point is to support discernment, not trophy-collect categories.',
+      'Final caution theme: seeing kalāpas or getting concentration is not enough; analysis must continue into characteristic/function/manifestation/proximate cause, and later into mentality and causes/conditions.'
+    ],
+    stuck:[
+      'If this turns into pure theory: step back to direct element discernment (whole-body and kalāpa-level) until perception is alive again.',
+      'If you feel tempted to conclude attainment from blank episodes: treat that as a diagnostic flag and revisit the bhavaṅga warning and the final caution.'
+    ],
+    warn:[
+      'The text explicitly warns: "I knew nothing" / "mind and object ceased" reports can be bhavaṅga, not Nibbāna, if mentality/materiality and causes are not discerned.',
+      'It also states that realizing Nibbāna does not entail a cessation of consciousness; full suspension is associated with nirodha-samāpatti for very advanced attainments.'
+    ],
+    refs:[
+      { label:'Transparent-elements materiality', href:'meditation_interactive_study_v4.html#transparent-elements' },
+      { label:'Twenty-eight materialities (atlas)', href:'meditation_interactive_study_v4.html#twenty-eight-materiality' },
+      { label:'Something to be careful of', href:'meditation_interactive_study_v4.html#something-careful' },
+      { label:'Falling into bhavaṅga (warning)', href:'meditation_interactive_study_v4.html#falling-into-bhavanga' }
+    ]
+  }
+];
+
+const root = document.documentElement;
+const homeScreen = document.getElementById('home-screen');
+const listScreen = document.getElementById('list-screen');
+const infoPopup = document.getElementById('info-popup');
+const infoScrim = document.getElementById('info-scrim');
+const canvas = document.getElementById('home-canvas');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('home-canvas-wrap');
+const fullInstructions = document.getElementById('full-instructions');
+const countMain = document.getElementById('count-main');
+const countSub = document.getElementById('count-sub');
+const countPrev = document.getElementById('count-prev');
+const countNext = document.getElementById('count-next');
+const countProgress = document.getElementById('count-progress');
+const homeHint = document.getElementById('home-hint');
+
+const dock = document.getElementById('dock');
+const dockPrev = document.getElementById('dock-prev');
+const dockNext = document.getElementById('dock-next');
+const dockMid = document.getElementById('dock-mid');
+const dockTitle = document.getElementById('dock-title');
+const dockNotes = document.getElementById('dock-notes');
+const dockDot = dockMid ? dockMid.querySelector('.dock-dot') : null;
+const dockScrim = document.getElementById('dock-scrim');
+const dockPicker = document.getElementById('dock-picker');
+
+const DPR = window.devicePixelRatio || 2;
+const BASE_SIZE = 320;
+canvas.width = BASE_SIZE * DPR;
+canvas.height = BASE_SIZE * DPR;
+ctx.scale(DPR, DPR);
+
+let meditationIndex = 0;
+let breathIndex = 0;
+let sessionRunning = false;
+let sessionCompletePulse = 0;
+const INHALE_DUR = 4;
+const EXHALE_DUR = 6;
+
+let session = { phase:'idle', t:0, completed:0, target:BREATH_COUNTS[0] };
+
+let pointer = { down:false, startY:0, lastStepY:0, moved:false, breathStarted:false, timer:null, downMs:0 };
+let infoOpen = false;
+let lastTs = null;
+
+const HOME_R = 72;
+const MAX_R = (BASE_SIZE / 2) - 14;
+
+function rgba(hex, alpha){
+  const h = hex.replace('#','');
+  const n = parseInt(h,16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function easeIn(t){ return 1 - Math.pow(1 - t, 2.2); }
+function easeEx(t){ return t*t*(3-2*t)*0.6 + t*0.4; }
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function breathTarget(){ return BREATH_COUNTS[breathIndex]; }
+
+function setAccent(){
+  const m = MEDITATIONS[meditationIndex];
+  root.style.setProperty('--accent', m.accent);
+  root.style.setProperty('--accent-soft', rgba(m.accent, .12));
+  if(dockTitle) dockTitle.textContent = `${m.stage}. ${m.name}`;
+  if(dockDot){
+    dockDot.style.background = m.accent;
+    dockDot.style.boxShadow = `0 0 0 6px ${rgba(m.accent,.12)}`;
+  }
+}
+
+const RAW_TEXT = [
+`1. Find the object
+There is a specific touch point at the nostrils or upper lip. The breath passes through it. Your job is to find that point and know: this is the breath.
+Aim
+Locate the exact place where the breath touches — either at the nostril rim or the upper lip — and stay there long enough that the mind recognises this touch as its object.
+Detailed instructions
+
+Sit upright in a posture you can hold without constant adjustment. Relax the face, jaw, shoulders, and belly. There should be no tension anywhere.
+The breath passes in and out through a small zone between the nostril rims and the top of the upper lip. Do not search inside the nose, in the chest, or in the abdomen. Stay in that external zone only.
+Your first job is simply to find the point where the breath is most obvious to you. It will be somewhere in that zone. For most people, it becomes a consistent spot — not chosen so much as discovered. Once found, stay there.
+When the breath touches that point, know: this is the breath. That recognition — simple, clean, direct — is the practice. Not concentration on the idea of breathing. Contact with the actual touch as it happens.
+Do not follow the breath inside the body. The moment attention leaves the touch point and travels inward, it has left the object.
+If you cannot feel the breath at all, take a slightly deeper breath to make the touch obvious, find the spot, then return to natural breathing and stay there.
+If the mind wanders, count breaths to stabilise: "in, out, one... in, out, two..." up to eight, then reset. Counting is scaffolding — use it when needed, put it down when the mind can stay on its own.
+
+Reflection
+
+Good practice: the touch point becomes smaller and clearer over time; the breath stays natural; there is a sense of settling at a specific location.
+Bad practice: following the breath through the body, controlling or deepening the breath to make the object feel stronger, or treating the whole face as the object.
+Advance when: you can return to the same touch point reliably, the mind stays there for a reasonable stretch without constant effort, and counting feels optional rather than necessary.
+`,
+`2. Long / short
+The breath is sometimes long, sometimes short. Know its duration at the same touch point — without measuring it or steering it.
+Aim
+Shift from counting to direct knowing of the breath's duration, while staying at the same specific touch point.
+Detailed instructions
+
+Drop the count when the mind can stay near the breath without it. Keep the same touch point you found in Meditation 1. Do not move to a new location.
+Long and short refer to duration — how long the touch lasts — not to depth, size, or force of the breath. A long breath takes more time to pass the point. A short breath takes less.
+Know each breath by its duration. A light recognition is sufficient. The moment this becomes running commentary ("that one was longer than the last one"), you have left the object.
+Let the breath be what it is. Do not slow it down to manufacture long breaths or speed it up to vary the experience. The natural breath is the object.
+If recognition of duration becomes mechanical, return to the simpler instruction: just know the touch.
+
+Reflection
+
+Good practice: duration is known almost in the background while attention stays stable at the contact point.
+Bad practice: deliberately altering the breath, over-labelling, or drifting from the touch point into thinking about breath patterns.
+Advance when: you can know duration cleanly without losing the touch point and without steering the breathing.
+`,
+`3. Whole breath
+Know each in-breath and each out-breath from beginning to end. When the breath becomes subtle, do not panic — stay at the point and wait.
+Aim
+Continuous awareness of the complete arc of each breath — beginning, middle, end — at the touch point. And the ability to stay steady when the breath becomes very fine.
+Detailed instructions
+
+Stay at the same touch point. Now know the whole in-breath as one continuous movement from when it arrives to when it stops. Then the whole out-breath the same way. The continuity matters more than verbal clarity.
+As concentration deepens, the breath becomes quieter and subtler. This is normal and correct. Do not react by breathing more deeply, or by checking whether you are still breathing. Stay at the touch point and wait for the subtle breath to become perceptible there.
+Pa Auk Sayadaw's instruction here is explicit: if the breath seems to have disappeared, you are not one of the rare beings who has stopped breathing. Mindfulness is simply not yet sharp enough to catch a breath that has become very fine. Keep awareness at the point.
+A sign (nimitta) may begin to appear — often first as a grey or smoky patch, a feeling of warmth, or simply a stable sensation at the touch point. When this appears, do not immediately chase it. Keep knowing the breath until the mind is genuinely steady and the sign is stable on its own.
+Do not try to produce calm. The instruction is to decide gently that the breathing should settle, and then do nothing else. Forced calmness breaks concentration.
+
+Reflection
+
+Good practice: the breath grows softer while the mind grows more patient and still.
+Bad practice: forcing the breath to stay obvious, becoming excited about early signs, or treating subtlety as a problem.
+Advance when: subtle breathing no longer causes you to gasp or interfere, and continuity at the touch point is stronger than the urge to meddle.
+`,
+`4. Air (pushing)
+Shift from the breath to a different quality: pushing. Find it as a direct tactile event, not as a concept.
+Aim
+Recognise pushing — movement, pressure, thrust — as a bodily quality that can be found and found again through direct touch, separate from the idea of "the body."
+Detailed instructions
+
+Use the steadier mind developed through breathing to begin looking for pushing. Pushing is the most accessible of the twelve qualities in the four-elements method.
+Begin where the signal is obvious: the chest expanding, the abdomen moving, the slight pressure of the head on the neck. Start with what is real and perceptible, not where it seems most impressive.
+Stay with one location until pushing is genuinely clear — not named, but directly felt. Then move methodically: head, neck, chest, arms, trunk, legs, feet.
+The question to ask: is there actual tactile movement, pressure, or thrust here? Or am I just naming a body part from memory and imagining the rest?
+Do not rush to a whole-body sweep after one clear moment. The point is to train the recognition so it becomes reliable anywhere.
+
+Reflection
+
+Good practice: pushing is found through direct touch in both obvious and quiet areas of the body.
+Bad practice: vague energy-sweeps, insisting on dramatic sensations, or naming body parts and calling it done.
+Advance when: pushing can be found reliably through most of the body without strain, including when it is quiet.
+`,
+`5. Earth (tactile)
+Find hardness, roughness, and heaviness as distinct tactile qualities — not as one undifferentiated lump called "the body."
+Aim
+Make the first three earth qualities discriminable enough that the body begins to be known as specific qualities rather than as a mass called "me."
+Detailed instructions
+
+Hardness: lightly bite the teeth together, then relax and keep noticing the hardness that remains. Extend the recognition through the body without deliberately tensing.
+Roughness: rub the tongue over the edge of the teeth or brush a hand across the skin. Once the quality is clear locally, search for it elsewhere without creating it through friction.
+Heaviness: place one hand on the other and feel the weight of the upper hand, or let the head tilt slightly forward and notice its heaviness. Then extend that recognition.
+Alternate these with pushing: pushing → hardness → roughness → heaviness. Repetition is the instruction. This is not asking for one memorable insight. It is training discernment so it becomes reliable.
+Keep the scan systematic — head to feet — rather than hopping randomly. Random scanning usually means the mind is already slipping into vagueness.
+
+Reflection
+
+Good practice: the four qualities become discriminable rather than collapsing into one mushy body-feeling.
+Bad practice: clenching to manufacture hardness, scratching around to produce roughness, or treating the exercise as concept review rather than perception.
+Advance when: you can run pushing, hardness, roughness, and heaviness through the body with real confidence.
+`,
+`6. Balance (opposites)
+Complete the easier tactile set. Learn to correct tension, harshness, or one-sidedness by deliberately using the opposite quality.
+Aim
+Complete the first six earth qualities and learn to use opposites as a practical correction — not a theoretical exercise.
+Detailed instructions
+
+Supporting: let the body slump slightly forward, then straighten. The force keeping the body upright and stable is supporting. Discern it throughout the body.
+Softness: press the tongue against the inside of the lip and recognise softness. Extend the search without collapsing posture.
+Smoothness: wet the lips and run the tongue across them. Recognise smoothness, then look for it more broadly.
+Lightness: wag one finger up and down. Notice its lightness. Train the recognition body-wide.
+Now cycle all eight qualities in order. If the practice feels too hard, rough, or pressured, use the opposing quality deliberately. This is a practical tool, not decoration.
+
+Reflection
+
+Good practice: you can lighten, soften, or steady the practice by choosing the appropriate opposite quality rather than forcing more effort.
+Bad practice: treating supporting as muscular bracing, or trying to hold all eight qualities simultaneously until everything becomes muddy.
+Advance when: all eight qualities are available throughout the body and using opposites actually rebalances strain.
+`,
+`7. Fire / water
+Complete the twelve qualities with heat, coldness, cohesion, and flowing. The last two are subtler and often inferential — that is not a defect.
+Aim
+Finish the complete set of twelve qualities and understand that not every quality is known in exactly the same way.
+Detailed instructions
+
+Heat: start with warmth wherever it is most obvious. This is usually straightforward.
+Coldness: begin with the cool of the breath entering the nostrils on the in-breath. Extend that recognition.
+Cohesion: notice how the body holds together — how skin, flesh, and sinew remain intact as a unit. Without cohesion, the body would fall apart into separate pieces. This quality is known more by inference from the fact of the body's integrity than by a raw sensation. That is correct and sufficient.
+Flowing: use the movement of saliva, the flow of breath in the lungs, the spread of warmth through a limb. Again, this is often inferential. That is normal.
+If cohesion and flowing are still vague, return to the previous ten qualities and strengthen them. Pa Auk's instruction: for cohesion, pushing and hardness are the most useful supports; for flowing, coldness, heat, or pushing can help.
+
+Reflection
+
+Good practice: you understand that the last two qualities are subtler and do not demand crude liquid sensations before counting them as found.
+Bad practice: inventing anatomical imagery, demanding that cohesion feel like wetness, or concluding the practice has failed because the last two qualities are not tactile in the same way as hardness.
+Advance when: all twelve qualities can be found clearly enough to work with the whole set.
+`,
+`8. Four elements (whole)
+Regroup the twelve qualities into the four elements and hold the whole body in one calmer, unified view.
+Aim
+Move from sequential scanning into a steady whole-body overview where the body is known as earth, water, fire, and air — not as a shape that belongs to you.
+Detailed instructions
+
+Regroup: the first six qualities (pushing, hardness, roughness, heaviness, softness/supporting, smoothness/lightness) as earth; cohesion and flowing as water; heat and coldness as fire; supporting and pushing as air. (Note: supporting and pushing span both earth and air in some framings — stay with the qualities as actually felt rather than forcing taxonomy.)
+Take the whole body in one view rather than part by part. Pa Auk suggests this is often easiest as though looking from slightly behind and above the shoulders — a light, encompassing awareness rather than a scanning beam.
+Cycle earth → water → fire → air at a pace that is neither rushed nor sluggish. Too fast means nothing is really being discerned; too slow means the overview loses continuity.
+Stay with the actual qualities — do not recite "earth, water, fire, air" as a chant while the mind is elsewhere.
+If a quality is temporarily unclear, it may be left out, provided at least one quality per element remains and no painful imbalance results.
+
+Reflection
+
+Good practice: the body begins to be perceived less as a personal shape and more as a field of knowable qualities.
+Bad practice: speed-reciting the elements, chasing effects, or drifting into random scanning every few breaths.
+Advance when: the four-element overview is steady enough for repeated clean rounds, with clarity maintained throughout.
+`,
+`9. Light / transparency
+Light and transparency are not rewards. They are new objects for the same discernment.
+Aim
+Treat any visual changes — light, whiteness, transparency — as further objects for four-element discernment, not as trophies or signs of attainment.
+Detailed instructions
+
+As concentration matures, some meditators begin to notice changes in how the body appears: a grey or smoky quality first, then white, then a body-form appearing luminous or white. These are natural developments of deepening concentration — not mystical events.
+Do not become hypnotised by the visual quality. Keep discerning the four elements within the light or white form, exactly as before.
+When the form appears transparent — like ice or glass — continue discerning elements there. At this stage the transparent or space element is becoming perceptible within the form.
+When the transparent form begins to sparkle or emit light, sustained concentration on it may mark access concentration (upacāra-samādhi), the threshold before full absorption. Use this as a stable platform, not as a destination.
+Look for the space element within the transparent form. According to Pa Auk's teaching, the body at this stage breaks down into small distinct particles — rūpa kalāpas. Your first task is to discern the four elements in those particles, not to immediately try for insight into arising and passing.
+
+Reflection
+
+Good practice: light and transparency make discernment sharper, not the meditator more grandiose.
+Bad practice: treating lights as proof of realisation, forcing visual effects, or mistaking blank discontinuity for Nibbāna.
+Advance when: you can return to this stage steadily and begin distinguishing transparent from opaque groupings without losing composure.
+`,
+`10. Materiality (rūpa)
+Use theory to sharpen what you are directly seeing. Do not use it to replace seeing with taxonomy.
+Aim
+Let the theoretical structure of rūpa clarify direct observation rather than substituting for it.
+Detailed instructions
+
+Start with the basic claim: each rūpa kalāpa — the smallest perceptible material grouping — contains at minimum eight kinds of materiality: earth, water, fire, air, colour, odour, taste, and nutritive essence.
+Begin distinguishing transparent-elements by which sense object impinges on them: colour impinging on the eye-base, touch on the body-base, sound on the ear-base, odour on the nose-base, taste on the tongue-base.
+Work one base at a time. Do not begin with the full taxonomy of twenty-eight materialities as a memorisation task. Understand first what "materiality" is doing in the analysis and why transparent and opaque groupings matter.
+Only then use the complete map of twenty-eight types so the taxonomy explains what you are looking at — rather than burying you in labels.
+If perception becomes merely conceptual — you are labelling rather than seeing — step back to the whole-body four-element overview or to transparent/opaque kalāpa work. The later lists only help when anchored in actual discernment.
+Pa Auk is explicit: merely seeing particles or memorising categories is not enough. Deeper analysis, causes, compactness, and the full vipassanā progression still lie ahead.
+
+Reflection
+
+Good practice: theory sharpens observation and observation keeps theory honest.
+Bad practice: opening the taxonomy too early and replacing discernment with intellectual collection.
+Advance when: the links between direct bodily observation, transparent-elements, kalāpas, and the theoretical structure are becoming intelligible rather than random.`
+];
+
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildInstructionsHtml(raw){
+  if(!raw) return '';
+  const lines = String(raw).split('\n');
+  const isLinkLine = (s) => {
+    const t = s.trim();
+    return (
+      t.startsWith('Open ') ||
+      t.startsWith('See ') ||
+      t.startsWith('Return ') ||
+      t.startsWith('Jump ') ||
+      t.startsWith('Read ') ||
+      t.startsWith('Why ') ||
+      t.startsWith('Balance ')
+    );
+  };
+
+  const idxAim = lines.findIndex(l => l.trim().startsWith('Aim:') || l.trim() === 'Aim');
+  const idxDetail = lines.findIndex(l => l.trim() === 'Detailed instructions');
+  const idxRefl = lines.findIndex(l => l.trim() === 'Good practice / bad practice / advance' || l.trim() === 'Reflection');
+
+  // If the structure isn't present, fall back to a simple pre-wrapped block.
+  if(idxAim < 0 || idxDetail < 0 || idxRefl < 0) {
+    const cleaned = lines.map(l => l.trimEnd()).filter(l => l.trim() && !isLinkLine(l)).join('\n');
+    return `<div class="inst-p">${escapeHtml(cleaned).replace(/\n/g,'<br>')}</div>`;
+  }
+
+  const prefaceLines = lines.slice(0, idxAim)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+
+  let aimText = '';
+  const aimLine = lines[idxAim].trim();
+  if(aimLine.startsWith('Aim:')) {
+    aimText = aimLine.replace(/^Aim:\s*/,'');
+  } else {
+    // Capture aim text until the detail header.
+    const aimChunk = lines.slice(idxAim + 1, idxDetail)
+      .map(l => l.trimEnd())
+      .filter(l => l.trim() && !isLinkLine(l));
+    aimText = aimChunk.join(' ');
+  }
+
+  const detailLines = lines.slice(idxDetail + 1, idxRefl)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+  const reflLines = lines.slice(idxRefl + 1)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+
+  const html = [];
+  prefaceLines.forEach(l => html.push(`<div class="inst-p">${escapeHtml(l)}</div>`));
+
+  html.push(`<div class="inst-aim"><span class="k">Aim</span><div class="inst-p">${escapeHtml(aimText)}</div></div>`);
+
+  html.push('<div class="inst-h">Detailed instructions</div>');
+  detailLines.forEach(l => html.push(`<div class="inst-p">${escapeHtml(l)}</div>`));
+
+  html.push('<div class="inst-h inst-ref">Reflection</div>');
+  reflLines.forEach(l => {
+    const m = /^(Good practice:|Bad practice:|Advance when:)(\s*)([\s\S]*)$/.exec(l.trim());
+    if(!m){
+      html.push(`<div class="inst-p">${escapeHtml(l)}</div>`);
+      return;
+    }
+    const label = m[1];
+    const rest = m[3] || '';
+    const cls = label.startsWith('Good') ? 'good' : (label.startsWith('Bad') ? 'bad' : 'adv');
+    html.push(`<div class="inst-p"><span class="inst-tag ${cls}">${escapeHtml(label)}</span> ${escapeHtml(rest)}</div>`);
+  });
+
+  return html.join('');
+}
+
+function setFullInstructions(){
+  if(!fullInstructions) return;
+  fullInstructions.innerHTML = buildInstructionsHtml(RAW_TEXT[meditationIndex] || '');
+  fullInstructions.scrollTop = 0;
+}
+
+function updateCountReadout(){
+  const target = breathTarget();
+  countPrev.textContent = breathIndex > 0 ? BREATH_COUNTS[breathIndex - 1] : '';
+  countNext.textContent = breathIndex < BREATH_COUNTS.length - 1 ? BREATH_COUNTS[breathIndex + 1] : '';
+  if(sessionRunning){
+    const current = Math.min(session.completed + 1, target);
+    countMain.textContent = current;
+    countSub.textContent = `of ${target}`;
+    countProgress.textContent = session.phase;
+    homeHint.textContent = 'tap to stop';
+  } else {
+    countMain.textContent = target;
+    countSub.textContent = 'breaths';
+    countProgress.textContent = sessionCompletePulse > 0 ? 'complete' : '';
+    homeHint.textContent = 'choose count · hold to begin · tap for notes';
+  }
+  try { syncTempoButtons(); } catch (e) {}
+}
+
+let audioCtx = null;
+function getAC(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+async function playClick(freq, gain, dur){
+  try{
+    const ac = getAC();
+    if(ac.state === 'suspended') await ac.resume();
+    const len = Math.floor(ac.sampleRate * dur);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++){
+      const env = Math.exp(-i/(len*0.06));
+      d[i] = (Math.random()*2-1)*env*0.7 + Math.sin(2*Math.PI*freq*i/ac.sampleRate)*env*0.3;
+    }
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const filt = ac.createBiquadFilter();
+    filt.type = 'bandpass';
+    filt.frequency.value = freq;
+    filt.Q.value = 5;
+    const g = ac.createGain();
+    g.gain.value = gain;
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(ac.destination);
+    src.start();
+    src.stop(ac.currentTime + dur);
+  }catch(e){}
+}
+const sndStart = () => playClick(850, 0.45, 0.08);
+const sndFinish = () => playClick(200, 0.28, 0.16);
+
+function populateInfo(){
+  const m = MEDITATIONS[meditationIndex];
+  const dd = STUDY_DEEP_DIVE[meditationIndex] || null;
+  document.getElementById('info-stage').textContent = m.stage;
+  document.getElementById('info-title').textContent = m.name;
+  document.getElementById('info-subtitle').textContent = m.subtitle;
+
+  const renderList = (items) => {
+    const arr = Array.isArray(items) ? items : [];
+    if(!arr.length) return '—';
+    return `<ul>${arr.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+  };
+
+  const notesEl = document.getElementById('info-notes');
+  const stuckEl = document.getElementById('info-stuck');
+  const warnEl  = document.getElementById('info-warn');
+  const refsEl  = document.getElementById('info-refs');
+
+  if(dd){
+    notesEl.innerHTML = renderList(dd.notes);
+    stuckEl.innerHTML = renderList(dd.stuck);
+    warnEl.innerHTML = renderList(dd.warn);
+    if(refsEl){
+      const refs = Array.isArray(dd.refs) ? dd.refs : [];
+      if(!refs.length){
+        refsEl.innerHTML = '—';
+      } else {
+        refsEl.innerHTML = refs.map(r => {
+          const href = (r && r.href) ? String(r.href) : '#';
+          const label = (r && r.label) ? String(r.label) : href;
+          return `<a class="info-chip" href="${escapeHtml(href)}">${escapeHtml(label)}</a>`;
+        }).join('');
+      }
+    }
+  } else {
+    notesEl.innerHTML = '—';
+    stuckEl.innerHTML = '—';
+    warnEl.innerHTML = '—';
+    if(refsEl) refsEl.innerHTML = '—';
+  }
+}
+
+function openInfo(){
+  if(sessionRunning) return;
+  infoOpen = true;
+  populateInfo();
+  if(infoScrim) infoScrim.classList.add('open');
+  infoPopup.classList.add('open');
+}
+function closeInfo(){
+  infoOpen = false;
+  infoPopup.classList.remove('open');
+  if(infoScrim) infoScrim.classList.remove('open');
+}
+function showScreen(id){ document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+function startSession(){
+  closeInfo();
+  sessionRunning = true;
+  sessionCompletePulse = 0;
+  session = { phase:'inhale', t:0, completed:0, target:breathTarget() };
+  sndStart();
+  updateCountReadout();
+}
+
+function stopSession(markComplete=false){
+  sessionRunning = false;
+  session.phase = 'idle';
+  session.t = 0;
+  session.completed = 0;
+  if(markComplete){
+    sessionCompletePulse = 1;
+    sndFinish();
+  }
+  updateCountReadout();
+}
+
+function setMeditation(index){
+  meditationIndex = index;
+  setAccent();
+  setFullInstructions();
+  populateInfo();
+  document.querySelectorAll('.tech-card').forEach((card,i)=>card.classList.toggle('selected', i === index));
+}
+
+function draw(){
+  const size = BASE_SIZE;
+  const cx = size/2, cy = size/2;
+  ctx.clearRect(0,0,size,size);
+
+  let wave = 0;
+  if(sessionRunning){
+    if(session.phase === 'inhale') wave = easeIn(clamp(session.t / INHALE_DUR, 0, 1));
+    else wave = 1 - easeEx(clamp(session.t / EXHALE_DUR, 0, 1));
+  }
+
+  const r = HOME_R + (MAX_R - HOME_R) * clamp(wave, 0, 1);
+
+  // Two-pass stroke so it's always visible.
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.lineWidth = 3.6;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.lineWidth = 2.1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.86)';
+  ctx.stroke();
+}
+
+function animate(ts){
+  if(!lastTs) lastTs = ts;
+  const dt = Math.min((ts - lastTs) / 1000, 0.08);
+  lastTs = ts;
+
+  if(sessionRunning){
+    const dur = session.phase === 'inhale' ? INHALE_DUR : EXHALE_DUR;
+    session.t += dt;
+    if(session.t >= dur){
+      session.t -= dur;
+      if(session.phase === 'inhale'){
+        session.phase = 'exhale';
+      } else {
+        session.completed += 1;
+        if(session.completed >= session.target){
+          stopSession(true);
+        } else {
+          session.phase = 'inhale';
+        }
+      }
+      updateCountReadout();
+    }
+  }
+  if(sessionCompletePulse > 0){ sessionCompletePulse = Math.max(0, sessionCompletePulse - dt * 1.25); }
+
+  draw();
+  requestAnimationFrame(animate);
+}
+
+function pointerY(e){ return e.touches ? e.touches[0].clientY : e.clientY; }
+function isInteractive(el){
+  if(!el || !el.closest) return false;
+  return (
+    el.closest('#info-popup') ||
+    el.closest('#info-scrim') ||
+    el.closest('#tempo-row') ||
+    el.closest('#dock') ||
+    el.closest('#dock-picker') ||
+    el.closest('#dock-scrim')
+  );
+}
+
+homeScreen.addEventListener('pointerdown', e => {
+  if(isInteractive(e.target)) return;
+  if(sessionRunning){ stopSession(false); return; }
+  pointer.down = true;
+  pointer.startY = pointer.lastStepY = pointerY(e);
+  pointer.moved = false;
+  pointer.breathStarted = false;
+  pointer.downMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  clearTimeout(pointer.timer);
+  pointer.timer = setTimeout(() => {
+    if(pointer.down && !pointer.moved && !infoOpen){
+      pointer.breathStarted = true;
+      startSession();
+    }
+  }, 110);
+});
+
+homeScreen.addEventListener('pointermove', e => {
+  if(!pointer.down || sessionRunning) return;
+  const y = pointerY(e);
+  const dy = y - pointer.startY;
+  if(Math.abs(dy) > 14) pointer.moved = true;
+  const step = Math.trunc((pointer.lastStepY - y) / 32);
+  if(step !== 0){
+    breathIndex = clamp(breathIndex + step, 0, BREATH_COUNTS.length - 1);
+    pointer.lastStepY = y;
+    clearTimeout(pointer.timer);
+    updateCountReadout();
+  }
+});
+
+homeScreen.addEventListener('pointerup', e => {
+  if(!pointer.down) return;
+  clearTimeout(pointer.timer);
+  const wasMoved = pointer.moved;
+  const heldMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - pointer.downMs;
+  const wasBreath = pointer.breathStarted;
+  pointer.down = false;
+  pointer.moved = false;
+  pointer.breathStarted = false;
+  pointer.downMs = 0;
+
+  if(sessionRunning) return;
+  if(!wasMoved && !wasBreath && heldMs < 180){
+    if(infoOpen) closeInfo(); else openInfo();
+  }
+});
+homeScreen.addEventListener('pointercancel', () => {
+  clearTimeout(pointer.timer);
+  pointer.down = false; pointer.moved = false; pointer.breathStarted = false;
+});
+
+let popupStartY = 0;
+infoPopup.addEventListener('touchstart', e => { popupStartY = e.touches[0].clientY; }, {passive:true});
+infoPopup.addEventListener('touchend', e => {
+  const dy = e.changedTouches[0].clientY - popupStartY;
+  if(dy > 70) closeInfo();
+}, {passive:true});
+
+if(infoScrim){
+  const scrimClose = (e) => {
+    try { e.preventDefault(); } catch (err) {}
+    try { e.stopPropagation(); } catch (err) {}
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    closeInfo();
+  };
+  infoScrim.addEventListener('pointerdown', scrimClose);
+  infoScrim.addEventListener('mousedown', scrimClose);
+  infoScrim.addEventListener('click', scrimClose);
+  infoScrim.addEventListener('touchstart', scrimClose, {passive:false});
+}
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && infoOpen) closeInfo();
+});
+
+function buildList(){
+  const groups = { breath:'group-breath', elements:'group-elements', seeing:'group-seeing' };
+  MEDITATIONS.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'tech-card';
+    card.innerHTML = `
+      <span class="card-dot" style="background:${m.accent}"></span>
+      <div class="card-copy">
+        <div class="card-stage">${m.stage}</div>
+        <div class="card-name">${m.name}</div>
+        <div class="card-subtitle">${m.subtitle}</div>
+      </div>`;
+    card.addEventListener('click', () => {
+      stopSession(false);
+      setMeditation(idx);
+      showScreen('home-screen');
+    });
+    document.getElementById(groups[m.group]).appendChild(card);
+  });
+}
+
+function setDockEnabled(){
+  // Keep navigation available; stop session if user changes meditation.
+  if(!dockPrev || !dockNext) return;
+  dockPrev.disabled = false;
+  dockNext.disabled = false;
+}
+
+let pickerOpen = false;
+function closePicker(){
+  pickerOpen = false;
+  if(dockScrim) dockScrim.classList.remove('open');
+  if(dockPicker) dockPicker.classList.remove('open');
+  if(dockMid) dockMid.setAttribute('aria-expanded', 'false');
+}
+function openPicker(){
+  pickerOpen = true;
+  if(dockScrim) dockScrim.classList.add('open');
+  if(dockPicker) dockPicker.classList.add('open');
+  if(dockMid) dockMid.setAttribute('aria-expanded', 'true');
+}
+function togglePicker(){
+  if(pickerOpen) closePicker();
+  else openPicker();
+}
+
+function buildPicker(){
+  if(!dockPicker) return;
+  const head = document.createElement('div');
+  head.className = 'picker-head';
+  head.innerHTML = '<div class="k">Meditations</div><div class="h">Scroll · tap to open</div>';
+  dockPicker.innerHTML = '';
+  dockPicker.appendChild(head);
+
+  MEDITATIONS.forEach((m, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'picker-item';
+    btn.innerHTML = `
+      <div class="picker-row">
+        <div class="picker-k">${m.stage}</div>
+        <div>
+          <div class="picker-title">${m.name}</div>
+          <div class="picker-sub">${m.subtitle}</div>
+        </div>
+      </div>
+    `;
+    btn.addEventListener('click', () => {
+      stopSession(false);
+      closeInfo();
+      setMeditation(idx);
+      closePicker();
+    });
+    dockPicker.appendChild(btn);
+  });
+}
+
+function syncTempoButtons(){
+  document.querySelectorAll('.tempo-btn').forEach(btn=>{
+    const n = Number(btn.getAttribute('data-count'));
+    btn.classList.toggle('active', BREATH_COUNTS[breathIndex] === n);
+  });
+}
+
+document.querySelectorAll('.tempo-btn').forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(sessionRunning) return;
+    const n = Number(btn.getAttribute('data-count'));
+    const idx = BREATH_COUNTS.indexOf(n);
+    if(idx >= 0){
+      breathIndex = idx;
+      updateCountReadout();
+      syncTempoButtons();
+    }
+  });
+});
+
+buildList();
+setMeditation(0);
+updateCountReadout();
+populateInfo();
+
+buildPicker();
+setDockEnabled();
+
+if(dockPrev){
+  const goPrev = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    stopSession(false);
+    closeInfo();
+    const next = (meditationIndex - 1 + MEDITATIONS.length) % MEDITATIONS.length;
+    setMeditation(next);
+  };
+  dockPrev.addEventListener('pointerdown', goPrev);
+}
+if(dockNext){
+  const goNext = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    stopSession(false);
+    closeInfo();
+    const next = (meditationIndex + 1) % MEDITATIONS.length;
+    setMeditation(next);
+  };
+  dockNext.addEventListener('pointerdown', goNext);
+}
+if(dockMid){
+  const open = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    togglePicker();
+  };
+  dockMid.addEventListener('pointerdown', open);
+}
+if(dockScrim){
+  const scrimClose = (e) => {
+    try { e.preventDefault(); } catch (err) {}
+    try { e.stopPropagation(); } catch (err) {}
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    closePicker();
+  };
+  dockScrim.addEventListener('pointerdown', scrimClose);
+}
+if(dockNotes){
+  const notes = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    if(sessionRunning) return;
+    if(infoOpen) closeInfo(); else openInfo();
+  };
+  dockNotes.addEventListener('pointerdown', notes);
+}
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
