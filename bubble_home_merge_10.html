@@ -77,9 +77,9 @@
       /* Bottom-right portal (links to breathing practice) */
       #lattyPortal {
         position: fixed;
-        right: 14px;
+        right: calc(14px + env(safe-area-inset-right));
         bottom: calc(14px + env(safe-area-inset-bottom));
-        width: clamp(28px, 6vw, 56px);
+        width: clamp(84px, 18vw, 168px);
         height: auto;
         opacity: 0.22;
         pointer-events: auto;
@@ -98,7 +98,7 @@
       }
 
       #lattyPortal:active {
-        transform: scale(0.98);
+        transform: none;
       }
 
       .bg {
@@ -133,14 +133,6 @@
         -webkit-backdrop-filter: blur(14px);
         box-shadow: var(--shadow);
         padding: 18px 16px;
-      }
-
-      #k {
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.20em;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.30);
       }
 
       #statement {
@@ -315,81 +307,40 @@
         }
       }
 
-      /* Bottom dock (same system as meditation, stripped down) */
-      #dock {
+      /* (Dock removed in favor of two nav circles) */
+
+      #navArrows {
         position: fixed;
         left: 50%;
         bottom: calc(14px + env(safe-area-inset-bottom));
         transform: translateX(-50%);
         z-index: 60;
-        width: min(92vw, 560px);
-        display: grid;
-        grid-template-columns: 44px 1fr 44px;
+        display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: var(--shadow-2);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        touch-action: manipulation;
+        gap: 14px;
       }
 
-      .dock-btn {
-        height: 36px;
-        min-width: 44px;
+      .navCircle {
+        width: 60px;
+        height: 60px;
         border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        background: rgba(255, 255, 255, 0.04);
-        color: rgba(255, 255, 255, 0.72);
+        border: 2px solid rgba(255, 255, 255, 0.22);
+        background: transparent;
         cursor: pointer;
-        padding: 0 10px;
-        font-size: 14px;
-        line-height: 36px;
       }
 
-      .dock-btn:disabled {
-        opacity: 0.35;
+      .navCircle:hover {
+        background: rgba(255, 255, 255, 0.10);
+        border-color: rgba(255, 255, 255, 0.38);
+      }
+
+      .navCircle:active {
+        transform: none;
+      }
+
+      .navCircle:disabled {
+        opacity: 0.26;
         cursor: default;
-      }
-
-      .dock-mid {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        height: 36px;
-        width: 100%;
-        padding: 0 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        background: rgba(255, 255, 255, 0.04);
-        color: rgba(255, 255, 255, 0.52);
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        user-select: none;
-        -webkit-user-select: none;
-      }
-
-      .dock-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.55);
-        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
-        flex-shrink: 0;
-      }
-
-      #dockLabel {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -410,7 +361,6 @@
 
       <main>
         <section id="stage" aria-live="polite">
-          <div id="k">S01/10</div>
           <div id="statement"></div>
           <div id="pointer"></div>
 
@@ -426,21 +376,13 @@
         </section>
       </main>
 
-      <nav id="dock" aria-label="Statement navigation">
-        <button class="dock-btn" id="prev" type="button" aria-label="Previous">
-          &lt;
-        </button>
-        <div class="dock-mid" aria-label="Current statement">
-          <span class="dock-dot" aria-hidden="true"></span>
-          <span id="dockLabel">S01/10</span>
-        </div>
-        <button class="dock-btn" id="next" type="button" aria-label="Next">
-          &gt;
-        </button>
-      </nav>
+      <div id="navArrows" aria-label="Statement navigation">
+        <button class="navCircle" id="prev" type="button" aria-label="Previous"></button>
+        <button class="navCircle" id="next" type="button" aria-label="Next"></button>
+      </div>
 
       <a id="lattyPortal" href="./index.html" aria-label="Open breathing practice">
-        <img src="latty.png" alt="" decoding="async" loading="lazy" />
+        <img src="cad.png" alt="" decoding="async" loading="lazy" />
       </a>
     </div>
 
@@ -879,14 +821,12 @@
         ];
 
         var stage = document.getElementById("stage");
-        var k = document.getElementById("k");
         var statement = document.getElementById("statement");
         var pointer = document.getElementById("pointer");
         var relatedDetails = document.getElementById("relatedDetails");
         var relatedCount = document.getElementById("relatedCount");
         var relatedList = document.getElementById("relatedList");
 
-        var dockLabel = document.getElementById("dockLabel");
         var prev = document.getElementById("prev");
         var next = document.getElementById("next");
 
@@ -985,11 +925,6 @@
 
         function repaint() {
           var total = STATEMENTS.length;
-          var cur = idx + 1;
-          var label = "S" + pad2(cur) + "/" + String(total);
-
-          k.textContent = label;
-          dockLabel.textContent = label;
 
           statement.textContent = STATEMENTS[idx].title;
           renderPointerParagraphs(STATEMENTS[idx].pointer);

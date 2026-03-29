@@ -85,10 +85,11 @@
               '#home-screen{width:100%;height:100%;}',
               '#home-canvas-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:0 !important;}',
               '#home-label{position:absolute;left:50%;top:calc(50% + min(182px,24vh));transform:translateX(-50%);margin-top:0 !important;}',
-              '#nav-dot{width:14px;height:14px;border-width:1px;}',
-              '#nav-dot-wrap{padding-bottom:calc(18px + env(safe-area-inset-bottom));}',
-              '#info-popup{padding-bottom:calc(32px + env(safe-area-inset-bottom));}',
-              '#list-header{padding-top:calc(16px + env(safe-area-inset-top));}',
+               '#nav-dot,#back-btn{width:60px;height:60px;border-width:2px;border-radius:50%;border:2px solid rgba(255,255,255,0.22);background:transparent;cursor:pointer;transition:none;}',
+               '#nav-dot:hover,#back-btn:hover{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.38);}',
+               '#nav-dot-wrap{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);margin-top:0;padding:0;display:flex;justify-content:center;pointer-events:all;z-index:50;}',
+               '#info-popup{padding-bottom:calc(32px + env(safe-area-inset-bottom));}',
+               '#list-header{padding-top:calc(16px + env(safe-area-inset-top));}',
             ].join('');
             document.head.appendChild(s);
           })();
@@ -103,7 +104,7 @@
 
             const img = document.createElement('img');
             img.id = 'latty';
-            img.src = 'latty.png';
+            img.src = 'cad.png';
             img.alt = '';
             img.decoding = 'async';
             img.loading = 'lazy';
@@ -116,8 +117,7 @@
               };
 
               try {
-                if (document.startViewTransition) document.startViewTransition(go);
-                else go();
+                 go();
               } catch (err) {
                 go();
               }
@@ -126,11 +126,11 @@
 
             const s = document.createElement('style');
             s.textContent = [
-              '#latty{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));',
-              'width:clamp(28px,6vw,56px);height:auto;opacity:0.22;',
-              'pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none;',
-              'filter:invert(1) drop-shadow(0 10px 24px rgba(0,0,0,0.55));z-index:40;}',
-            ].join('');
+               '#latty{position:absolute;right:calc(14px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));',
+               'width:clamp(84px,18vw,168px);height:auto;opacity:0.22;',
+               'pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none;',
+               'filter:invert(1) drop-shadow(0 10px 24px rgba(0,0,0,0.55));z-index:40;}',
+             ].join('');
             document.head.appendChild(s);
           })();
 
@@ -219,6 +219,12 @@
               )
               .replace('visible:true}));', 'visible:homeDefaultVisible(tech)}));')
               .replace(/s\.visible=true;/g, 's.visible=!!(s.tech&&homeDefaultVisible(s.tech));');
+
+            // If multiple rings share the same radius at rest, draw the longest inhale last (purple on top).
+            appJs = appJs.replace(
+              /sort\(\(a,b\)=>b\.r-a\.r\)/g,
+              'sort((a,b)=>(b.r-a.r)||(((a.tech&&a.tech.inhale)||0)-((b.tech&&b.tech.inhale)||0)))'
+            );
 
             // Add additional techniques.
             appJs = appJs.replace(

@@ -36,9 +36,9 @@ body{
 /* Bottom-right portal */
 #lattyPortal{
   position:absolute;
-  right:14px;
+  right:calc(14px + env(safe-area-inset-right));
   bottom:calc(14px + env(safe-area-inset-bottom));
-  width:clamp(28px,6vw,56px);
+  width:clamp(84px,18vw,168px);
   height:auto;
   opacity:0.22;
   pointer-events:auto;
@@ -51,16 +51,16 @@ body{
 
 #lattyPortal img{display:block;width:100%;height:auto}
 
-#lattyPortal:active{transform:scale(0.98)}
+#lattyPortal:active{transform:none}
 .screen{display:none;flex:1;position:relative}
 .screen.active{display:flex}
 #home-screen{
   flex-direction:column;align-items:center;justify-content:flex-start;
-  padding:calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+  padding:calc(14px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
   touch-action:none;cursor:pointer;
 }
 #home-canvas-wrap{
-  width:min(86vw,320px);height:min(86vw,320px);margin-top:2px;position:relative;left:auto;top:auto;transform:none;
+  width:min(58vw,240px);height:min(58vw,240px);margin-top:2px;position:relative;left:auto;top:auto;transform:none;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 canvas{display:block;width:100%;height:100%}
@@ -79,7 +79,7 @@ canvas{display:block;width:100%;height:100%}
 
 #bottom-zone{margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
 
-.flex-spacer{flex:1}
+.flex-spacer{display:none}
 
 #tempo-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
 .tempo-btn{
@@ -106,12 +106,13 @@ canvas{display:block;width:100%;height:100%}
   border-radius:18px;
   border:1px solid rgba(255,255,255,0.08);
   background:rgba(255,255,255,0.02);
-  max-height:min(52vh, 520px);
+  max-height:min(72vh, 860px);
   overflow:auto;
 }
 
 .inst-aim{color:rgba(255,255,255,0.36);margin-bottom:10px}
 .inst-aim .k{color:var(--accent);letter-spacing:0.10em;text-transform:uppercase;font-size:11px}
+.inst-title{font-family:"Fraunces",serif;font-optical-sizing:auto;letter-spacing:-0.01em;font-size:16px;color:rgba(255,255,255,0.72);margin:0 0 10px}
 .inst-h{margin:16px 0 8px;color:rgba(255,255,255,0.26);letter-spacing:0.14em;font-size:10px}
 .inst-p{margin:0 0 8px}
 .inst-ref{margin-top:14px}
@@ -223,11 +224,11 @@ canvas{display:block;width:100%;height:100%}
 #meditation-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.45);box-shadow:0 0 0 6px rgba(255,255,255,0.06);flex-shrink:0}
 #meditation-label{font-size:11px;line-height:1.2;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72vw}
 #home-hint{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,0.18)}
-#nav-dot-wrap{padding-top:2px;display:flex;justify-content:center;width:100%}
-#nav-dot,#back-btn{
-  width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
+#nav-dot-wrap{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;justify-content:center;width:auto;pointer-events:all;z-index:80}
+#nav-dot{
+  width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.22);background:transparent;cursor:pointer;
 }
-#nav-dot:hover,#back-btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.38);transform:scale(1.04)}
+#nav-dot:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.38)}
 
 #info-scrim{
   position:fixed;inset:0;z-index:72;
@@ -265,13 +266,13 @@ canvas{display:block;width:100%;height:100%}
 .info-chip:visited{color:rgba(255,255,255,0.5)}
 .info-chip:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.08)}
 
-#list-screen{flex-direction:column;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+#list-screen{flex-direction:column;overflow-y:auto;padding-bottom:calc(180px + env(safe-area-inset-bottom));}
 #list-header{
   display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;position:sticky;top:0;
   background:linear-gradient(180deg, rgba(7,7,14,.96), rgba(7,7,14,.86));backdrop-filter:blur(10px);z-index:4;
 }
 #list-header span{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.22)}
-#list-wrap{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+#list-wrap{padding:0 16px calc(180px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
 .group{border-top:1px solid var(--line);padding-top:10px}
 .group-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:10px}
 .card-list{display:flex;flex-direction:column;gap:8px}
@@ -307,7 +308,7 @@ canvas{display:block;width:100%;height:100%}
 <div id="app">
   <div id="home-screen" class="screen active">
     <div id="home-canvas-wrap">
-      <canvas id="home-canvas" width="320" height="320"></canvas>
+      <canvas id="home-canvas" width="240" height="240"></canvas>
       <div id="center-readout">
         <div id="count-prev"></div>
         <div id="count-main">1</div>
@@ -330,17 +331,7 @@ canvas{display:block;width:100%;height:100%}
 
     <div class="flex-spacer"></div>
 
-    <div id="dock" aria-label="Meditation navigation">
-      <button class="dock-btn" id="dock-prev" type="button" aria-label="Previous">&lt;</button>
-      <button class="dock-mid" id="dock-mid" type="button" aria-label="Choose meditation" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dock-dot"></span>
-        <span id="dock-title">1. Anapanasati</span>
-      </button>
-      <button class="dock-btn" id="dock-next" type="button" aria-label="Next">&gt;</button>
-      <button class="dock-btn" id="dock-notes" type="button" aria-label="Notes">Notes</button>
-    </div>
-    <div id="dock-scrim"></div>
-    <div id="dock-picker" role="dialog" aria-label="Meditations"></div>
+    <div id="nav-dot-wrap"><button id="nav-dot" type="button" aria-label="Meditations"></button></div>
 
     <div id="info-scrim" aria-hidden="true"></div>
     <div id="info-popup" role="dialog" aria-label="Meditation notes">
@@ -348,7 +339,8 @@ canvas{display:block;width:100%;height:100%}
       <div id="info-stage"></div>
       <div id="info-title"></div>
       <div id="info-subtitle"></div>
-      <div class="info-block"><div class="info-heading">Deep Dive (Study Edition)</div><div class="info-body" id="info-notes"></div></div>
+      <div class="info-block"><div class="info-heading">Aim + reflection</div><div class="info-body" id="info-notes"></div></div>
+      <div class="info-block"><div class="info-heading">Detailed instructions</div><div class="info-body" id="info-detail"></div></div>
       <div class="info-block"><div class="info-heading">If You Get Stuck</div><div class="info-body" id="info-stuck"></div></div>
       <div class="info-block"><div class="info-heading">Warnings + Next Layer</div><div class="info-body" id="info-warn"></div></div>
       <div class="info-block"><div class="info-heading">Optional References</div><div class="info-body" id="info-refs"></div></div>
@@ -356,7 +348,7 @@ canvas{display:block;width:100%;height:100%}
   </div>
 
   <div id="list-screen" class="screen">
-    <div id="list-header"><span>Meditations</span><div id="back-btn"></div></div>
+    <div id="list-header"><span>Meditations</span></div>
     <div id="list-wrap">
       <div class="group"><div class="group-title">Breath</div><div class="card-list" id="group-breath"></div></div>
       <div class="group"><div class="group-title">Elements</div><div class="card-list" id="group-elements"></div></div>
@@ -365,7 +357,7 @@ canvas{display:block;width:100%;height:100%}
   </div>
 
   <a id="lattyPortal" href="bubble_home_merge_10.html" aria-label="Open bubble homepage">
-    <img src="latty.png" alt="" decoding="async" loading="lazy" />
+    <img src="cad.png" alt="" decoding="async" loading="lazy" />
   </a>
 </div>
 
@@ -374,7 +366,7 @@ const BREATH_COUNTS = [10,20,50,100];
 const MEDITATIONS = [
   {
     stage:'1',
-    name:'Anapanasati',
+    name:'Find the breath',
     group:'breath',
     accent:'#ef4444',
     subtitle:'Build one small, exact breath object at the nostrils or upper lip. Counting is scaffolding, not the practice itself.',
@@ -400,7 +392,7 @@ const MEDITATIONS = [
   },
   {
     stage:'2',
-    name:'Long / short',
+    name:'Long / Short',
     group:'breath',
     accent:'#f97316',
     subtitle:'Shift from counting to direct knowing of the breath’s duration, while keeping the same tiny contact point.',
@@ -829,6 +821,7 @@ const STUDY_DEEP_DIVE = [
 ];
 
 const root = document.documentElement;
+const app = document.getElementById('app');
 const homeScreen = document.getElementById('home-screen');
 const listScreen = document.getElementById('list-screen');
 const infoPopup = document.getElementById('info-popup');
@@ -854,8 +847,16 @@ const dockDot = dockMid ? dockMid.querySelector('.dock-dot') : null;
 const dockScrim = document.getElementById('dock-scrim');
 const dockPicker = document.getElementById('dock-picker');
 
+const navDot = document.getElementById('nav-dot');
+const navDotWrap = document.getElementById('nav-dot-wrap');
+
+// Keep the bottom circle visible across screens.
+try {
+  if(app && navDotWrap && navDotWrap.parentElement !== app) app.appendChild(navDotWrap);
+} catch (e) {}
+
 const DPR = window.devicePixelRatio || 2;
-const BASE_SIZE = 320;
+const BASE_SIZE = 240;
 canvas.width = BASE_SIZE * DPR;
 canvas.height = BASE_SIZE * DPR;
 ctx.scale(DPR, DPR);
@@ -873,8 +874,21 @@ let pointer = { down:false, startY:0, lastStepY:0, moved:false, breathStarted:fa
 let infoOpen = false;
 let lastTs = null;
 
-const HOME_R = 72;
-const MAX_R = (BASE_SIZE / 2) - 14;
+const HOME_R = 30;
+const MAX_R = (BASE_SIZE / 2) - 12;
+
+if(navDot){
+  navDot.addEventListener('pointerdown', (e) => {
+    try { e.preventDefault(); } catch (err) {}
+    try { e.stopPropagation(); } catch (err) {}
+    try { e.stopImmediatePropagation(); } catch (err) {}
+    if(sessionRunning) return;
+    closeInfo();
+    if(listScreen && listScreen.classList.contains('active')) showScreen('home-screen');
+    else showScreen('list-screen');
+  }, true);
+}
+
 
 function rgba(hex, alpha){
   const h = hex.replace('#','');
@@ -1165,9 +1179,137 @@ function buildInstructionsHtml(raw){
   return html.join('');
 }
 
+function buildAimReflectionHtml(raw){
+  if(!raw) return '—';
+  const lines = String(raw).split('\n');
+  const isLinkLine = (s) => {
+    const t = s.trim();
+    return (
+      t.startsWith('Open ') ||
+      t.startsWith('See ') ||
+      t.startsWith('Return ') ||
+      t.startsWith('Jump ') ||
+      t.startsWith('Read ') ||
+      t.startsWith('Why ') ||
+      t.startsWith('Balance ')
+    );
+  };
+  const idxAim = lines.findIndex(l => l.trim().startsWith('Aim:') || l.trim() === 'Aim');
+  const idxDetail = lines.findIndex(l => l.trim() === 'Detailed instructions');
+  const idxRefl = lines.findIndex(l => l.trim() === 'Good practice / bad practice / advance' || l.trim() === 'Reflection');
+  if(idxAim < 0 || idxDetail < 0 || idxRefl < 0) return '—';
+
+  let aimText = '';
+  const aimLine = lines[idxAim].trim();
+  if(aimLine.startsWith('Aim:')) {
+    aimText = aimLine.replace(/^Aim:\s*/,'');
+  } else {
+    const aimChunk = lines.slice(idxAim + 1, idxDetail)
+      .map(l => l.trimEnd())
+      .filter(l => l.trim() && !isLinkLine(l));
+    aimText = aimChunk.join(' ');
+  }
+
+  const reflLines = lines.slice(idxRefl + 1)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+
+  const html = [];
+  html.push(`<div class="inst-aim"><span class="k">Aim</span><div class="inst-p">${escapeHtml(aimText || '—')}</div></div>`);
+  html.push('<div class="inst-h inst-ref">Reflection</div>');
+  reflLines.forEach(l => {
+    const m = /^(Good practice:|Bad practice:|Advance when:)(\s*)([\s\S]*)$/.exec(l.trim());
+    if(!m){
+      html.push(`<div class="inst-p">${escapeHtml(l)}</div>`);
+      return;
+    }
+    const label = m[1];
+    const rest = m[3] || '';
+    const cls = label.startsWith('Good') ? 'good' : (label.startsWith('Bad') ? 'bad' : 'adv');
+    html.push(`<div class="inst-p"><span class="inst-tag ${cls}">${escapeHtml(label)}</span> ${escapeHtml(rest)}</div>`);
+  });
+  return html.join('');
+}
+
+function buildDetailOnlyHtml(raw){
+  if(!raw) return '—';
+  const lines = String(raw).split('\n');
+  const isLinkLine = (s) => {
+    const t = s.trim();
+    return (
+      t.startsWith('Open ') ||
+      t.startsWith('See ') ||
+      t.startsWith('Return ') ||
+      t.startsWith('Jump ') ||
+      t.startsWith('Read ') ||
+      t.startsWith('Why ') ||
+      t.startsWith('Balance ')
+    );
+  };
+  const idxDetail = lines.findIndex(l => l.trim() === 'Detailed instructions');
+  const idxRefl = lines.findIndex(l => l.trim() === 'Good practice / bad practice / advance' || l.trim() === 'Reflection');
+  if(idxDetail < 0 || idxRefl < 0) return '—';
+  const detailLines = lines.slice(idxDetail + 1, idxRefl)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+  if(!detailLines.length) return '—';
+  return detailLines.map(l => `<div class="inst-p">${escapeHtml(l)}</div>`).join('');
+}
+
+function renderList(items){
+  const arr = Array.isArray(items) ? items : [];
+  if(!arr.length) return '—';
+  return `<ul>${arr.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+}
+
+function getAimTextFromRaw(raw){
+  if(!raw) return '';
+  const lines = String(raw).split('\n');
+  const isLinkLine = (s) => {
+    const t = s.trim();
+    return (
+      t.startsWith('Open ') ||
+      t.startsWith('See ') ||
+      t.startsWith('Return ') ||
+      t.startsWith('Jump ') ||
+      t.startsWith('Read ') ||
+      t.startsWith('Why ') ||
+      t.startsWith('Balance ')
+    );
+  };
+  const idxAim = lines.findIndex(l => l.trim().startsWith('Aim:') || l.trim() === 'Aim');
+  const idxDetail = lines.findIndex(l => l.trim() === 'Detailed instructions');
+  if(idxAim < 0 || idxDetail < 0) return '';
+  const aimLine = lines[idxAim].trim();
+  if(aimLine.startsWith('Aim:')) return aimLine.replace(/^Aim:\s*/,'');
+  const aimChunk = lines.slice(idxAim + 1, idxDetail)
+    .map(l => l.trimEnd())
+    .filter(l => l.trim() && !isLinkLine(l));
+  return aimChunk.join(' ');
+}
+
 function setFullInstructions(){
   if(!fullInstructions) return;
-  fullInstructions.innerHTML = buildInstructionsHtml(RAW_TEXT[meditationIndex] || '');
+  const dd = STUDY_DEEP_DIVE[meditationIndex] || null;
+  const m = MEDITATIONS[meditationIndex];
+  const raw = RAW_TEXT[meditationIndex] || '';
+  const aim = getAimTextFromRaw(raw);
+  const notes = (dd && Array.isArray(dd.notes)) ? dd.notes : [];
+
+  let html = '';
+  if(m && m.name) html += `<div class="inst-title">${escapeHtml(m.name)}</div>`;
+  if(aim) html += `<div class="inst-aim"><span class="k">Aim</span><div class="inst-p">${escapeHtml(aim)}</div></div>`;
+
+  if(notes.length){
+    html += '<div class="inst-h" style="margin-top:0">Notes</div>';
+    notes.forEach(n => {
+      html += `<div class="inst-p">${escapeHtml(n)}</div>`;
+    });
+  } else {
+    html += buildInstructionsHtml(raw);
+  }
+
+  fullInstructions.innerHTML = html;
   fullInstructions.scrollTop = 0;
 }
 
@@ -1222,7 +1364,77 @@ async function playClick(freq, gain, dur){
   }catch(e){}
 }
 const sndStart = () => playClick(850, 0.45, 0.08);
-const sndFinish = () => playClick(200, 0.28, 0.16);
+
+async function playBell(){
+  try{
+    const ac = getAC();
+    if(ac.state === 'suspended') await ac.resume();
+    const t0 = ac.currentTime;
+
+    const master = ac.createGain();
+    master.gain.setValueAtTime(0.00001, t0);
+    master.gain.exponentialRampToValueAtTime(0.26, t0 + 0.01);
+    master.gain.exponentialRampToValueAtTime(0.00001, t0 + 3.4);
+    master.connect(ac.destination);
+
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 5200;
+    lp.Q.value = 0.6;
+    lp.connect(master);
+
+    const base = 523.25; // C5-ish
+    const partials = [
+      { r: 1.0, g: 0.55, d: 3.4 },
+      { r: 2.706, g: 0.35, d: 2.9 },
+      { r: 4.0, g: 0.18, d: 2.1 },
+      { r: 5.42, g: 0.12, d: 1.7 }
+    ];
+
+    partials.forEach(p => {
+      const o = ac.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(base * p.r, t0);
+      try { o.detune.setValueAtTime((Math.random() * 8) - 4, t0); } catch (e) {}
+
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.00001, t0);
+      g.gain.exponentialRampToValueAtTime(p.g, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.00001, t0 + p.d);
+
+      o.connect(g);
+      g.connect(lp);
+      o.start(t0);
+      o.stop(t0 + p.d + 0.05);
+    });
+
+    // Soft strike noise.
+    const len = Math.floor(ac.sampleRate * 0.08);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++){
+      const env = Math.exp(-i/(len*0.18));
+      d[i] = (Math.random()*2-1) * env;
+    }
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const bp = ac.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 2400;
+    bp.Q.value = 0.8;
+    const ng = ac.createGain();
+    ng.gain.setValueAtTime(0.00001, t0);
+    ng.gain.exponentialRampToValueAtTime(0.10, t0 + 0.002);
+    ng.gain.exponentialRampToValueAtTime(0.00001, t0 + 0.08);
+    src.connect(bp);
+    bp.connect(ng);
+    ng.connect(lp);
+    src.start(t0);
+    src.stop(t0 + 0.09);
+  }catch(e){}
+}
+
+const sndFinish = () => playBell();
 
 function populateInfo(){
   const m = MEDITATIONS[meditationIndex];
@@ -1231,19 +1443,15 @@ function populateInfo(){
   document.getElementById('info-title').textContent = m.name;
   document.getElementById('info-subtitle').textContent = m.subtitle;
 
-  const renderList = (items) => {
-    const arr = Array.isArray(items) ? items : [];
-    if(!arr.length) return '—';
-    return `<ul>${arr.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
-  };
-
   const notesEl = document.getElementById('info-notes');
+  const detailEl = document.getElementById('info-detail');
   const stuckEl = document.getElementById('info-stuck');
   const warnEl  = document.getElementById('info-warn');
   const refsEl  = document.getElementById('info-refs');
 
   if(dd){
-    notesEl.innerHTML = renderList(dd.notes);
+    notesEl.innerHTML = buildAimReflectionHtml(RAW_TEXT[meditationIndex] || '');
+    if(detailEl) detailEl.innerHTML = buildDetailOnlyHtml(RAW_TEXT[meditationIndex] || '');
     stuckEl.innerHTML = renderList(dd.stuck);
     warnEl.innerHTML = renderList(dd.warn);
     if(refsEl){
@@ -1260,6 +1468,7 @@ function populateInfo(){
     }
   } else {
     notesEl.innerHTML = '—';
+    if(detailEl) detailEl.innerHTML = '—';
     stuckEl.innerHTML = '—';
     warnEl.innerHTML = '—';
     if(refsEl) refsEl.innerHTML = '—';
@@ -1325,13 +1534,13 @@ function draw(){
   // Two-pass stroke so it's always visible.
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.lineWidth = 3.6;
+  ctx.lineWidth = 2.8;
   ctx.strokeStyle = 'rgba(255,255,255,0.10)';
   ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.lineWidth = 2.1;
+  ctx.lineWidth = 1.7;
   ctx.strokeStyle = 'rgba(255,255,255,0.86)';
   ctx.stroke();
 }
@@ -1372,6 +1581,8 @@ function isInteractive(el){
     el.closest('#info-popup') ||
     el.closest('#info-scrim') ||
     el.closest('#tempo-row') ||
+    el.closest('#nav-dot-wrap') ||
+    el.closest('#back-btn') ||
     el.closest('#dock') ||
     el.closest('#dock-picker') ||
     el.closest('#dock-scrim')
