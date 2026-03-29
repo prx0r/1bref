@@ -79,14 +79,14 @@
         position: fixed;
         right: calc(14px + env(safe-area-inset-right));
         bottom: calc(14px + env(safe-area-inset-bottom));
-        width: clamp(84px, 18vw, 168px);
-        height: auto;
+        width: 66px;
+        height: 66px;
         opacity: 0.22;
         pointer-events: auto;
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
-        filter: invert(1) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55));
+        filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55));
         z-index: 70;
         text-decoration: none;
       }
@@ -94,7 +94,8 @@
       #lattyPortal img {
         display: block;
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: contain;
       }
 
       #lattyPortal:active {
@@ -321,8 +322,8 @@
       }
 
       .navCircle {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         border-radius: 999px;
         border: 2px solid rgba(255, 255, 255, 0.22);
         background: transparent;
@@ -382,7 +383,7 @@
       </div>
 
       <a id="lattyPortal" href="./index.html" aria-label="Open breathing practice">
-        <img src="cad.png" alt="" decoding="async" loading="lazy" />
+        <img src="greyscale_hermesss.png" alt="" decoding="async" loading="lazy" />
       </a>
     </div>
 
